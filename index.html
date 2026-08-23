@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой первый сайт</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #e94560, #0f3460);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card {
+      background: #16213e;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 350px;
+    }
+
+    #counter {
+      font-size: 4rem;
+      margin: 20px 0;
+      color: #e94560;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    button:active { transform: scale(0.95); }
+    button:hover { opacity: 0.85; }
+
+    .btn-minus { background: #e94560; color: #fff; }
+    .btn-plus  { background: #0f3460; color: #fff; }
+    .btn-reset { background: #533483; color: #fff; }
+
+    #message {
+      margin-top: 16px;
+      font-size: 1.1rem;
+      min-height: 24px;
+      color: #a8a8d8;
+    }
+
+    #time {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Демо-сайт с JavaScript</h1>
+
+  <div class="card">
+    <p>Счётчик нажатий:</p>
+    <div id="counter">0</div>
+
+    <div class="buttons">
+      <button class="btn-minus" onclick="change(-1)">- 1</button>
+      <button class="btn-reset" onclick="reset()">Сброс</button>
+      <button class="btn-plus"  onclick="change(1)">+ 1</button>
+    </div>
+
+    <p id="message"></p>
+  </div>
+
+  <p id="time"></p>
+
+  <script>
+    let count = 0;
+
+    const counterEl = document.getElementById('counter');
+    const messageEl = document.getElementById('message');
+    const timeEl    = document.getElementById('time');
+
+    function change(value) {
+      count += value;
+      counterEl.textContent = count;
+      showMessage();
+    }
+
+    function reset() {
+      count = 0;
+      counterEl.textContent = count;
+      messageEl.textContent = 'Счётчик сброшен!';
+    }
+
+    function showMessage() {
+      if (count > 10)      messageEl.textContent = 'Ого, много кликов!';
+      else if (count < 0)  messageEl.textContent = 'Отрицательное число!';
+      else if (count === 0) messageEl.textContent = '';
+      else                  messageEl.textContent = `Вы нажали ${count} раз`;
+    }
+
+    function updateTime() {
+      const now = new Date();
+      timeEl.textContent = 'Текущее время: ' + now.toLocaleTimeString('ru-RU');
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+  </script>
+
+</body>
+</html>
