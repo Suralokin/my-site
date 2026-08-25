@@ -2,13 +2,11 @@ backend:
   name: github
   repo: Suralokin/my-site
   branch: main
-  base_url: https://my-site-vert.vercel.app
-  auth_endpoint: /api/auth
+
+local_backend: true
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
-
-publish_mode: editorial_workflow
 
 collections:
   - name: "settings"
