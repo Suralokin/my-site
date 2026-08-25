@@ -797,6 +797,8 @@ a { text-decoration: none; color: inherit; }
     flex-direction: column;
     justify-content: flex-start;
     padding-top: 100px;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
   .hero-globe-wrap {
     position: relative;
@@ -818,6 +820,7 @@ a { text-decoration: none; color: inherit; }
     height: 260px;
     cursor: grab;
     pointer-events: auto;
+    touch-action: none;
   }
   .hero-content { gap: 0; }
   .nav-links { display: none; }
