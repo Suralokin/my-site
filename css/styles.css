@@ -800,6 +800,7 @@ a { text-decoration: none; color: inherit; }
     padding-top: 100px;
     overflow: hidden;
     overscroll-behavior: none;
+    touch-action: pan-y;
   }
   .hero-globe-wrap {
     position: relative;
