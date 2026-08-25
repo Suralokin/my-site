@@ -665,8 +665,172 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(-3px);
 }
 
+/* ===== 3D GLOBE ===== */
+.hero-globe-wrap {
+  position: absolute;
+  right: -80px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 420px;
+  height: 420px;
+  perspective: 900px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.globe-atmosphere {
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(66,165,245,0.12) 0%, rgba(0,229,255,0.06) 40%, transparent 70%);
+  filter: blur(15px);
+  animation: atmosphere-pulse 4s ease-in-out infinite;
+}
+
+@keyframes atmosphere-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.globe {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: globe-rotate 20s linear infinite;
+}
+
+@keyframes globe-rotate {
+  from { transform: rotateY(0deg) rotateX(-12deg); }
+  to { transform: rotateY(360deg) rotateX(-12deg); }
+}
+
+.globe-surface {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(66,165,245,0.15) 0%, rgba(13,71,161,0.08) 40%, rgba(6,6,15,0.6) 100%);
+  border: 1.5px solid rgba(66,165,245,0.2);
+  box-shadow:
+    inset -30px -30px 60px rgba(0,0,0,0.5),
+    inset 15px 15px 40px rgba(66,165,245,0.08),
+    0 0 60px rgba(66,165,245,0.1);
+}
+
+.globe-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(66,165,245,0.12);
+  transform-style: preserve-3d;
+}
+
+.globe-ring.longitude {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transform: rotateY(calc(var(--i) * 36deg));
+}
+
+.globe-ring.latitude {
+  width: calc(100% - var(--lat-offset, 0px));
+  height: 100%;
+  left: calc(var(--lat-offset, 0px) / 2);
+  top: 0;
+  transform: rotateX(calc(var(--i) * 45deg - 67.5deg));
+}
+
+.globe-ring.latitude:nth-child(6) { --lat-offset: 140px; }
+.globe-ring.latitude:nth-child(7) { --lat-offset: 60px; }
+.globe-ring.latitude:nth-child(8) { --lat-offset: 60px; }
+.globe-ring.latitude:nth-child(9) { --lat-offset: 140px; }
+
+/* Globe Pins */
+.globe-pins {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.pin {
+  position: absolute;
+  top: calc(50% - var(--lat) * 0.5);
+  left: calc(50% + var(--lng) * 0.5);
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.pin-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(0,229,255,0.4);
+  position: relative;
+  z-index: 2;
+}
+
+.pin-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  animation: pin-pulse 2s ease-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes pin-pulse {
+  0% { width: 8px; height: 8px; opacity: 1; }
+  100% { width: 40px; height: 40px; opacity: 0; }
+}
+
+.pin-label {
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  white-space: nowrap;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--cyan);
+  background: rgba(6,6,15,0.8);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,229,255,0.25);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.pin:hover .pin-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Globe shimmer */
+.globe::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
+  .hero-globe-wrap {
+    width: 280px;
+    height: 280px;
+    right: -60px;
+    opacity: 0.4;
+  }
   .hero-content {
     flex-direction: column;
     text-align: center;
@@ -681,6 +845,7 @@ a { text-decoration: none; color: inherit; }
   .section { padding: 70px 20px; }
 }
 @media (max-width: 640px) {
+  .hero-globe-wrap { display: none; }
   .nav-links { display: none; }
   .burger { display: flex; }
   .hero-text h1 { font-size: 1.8rem; }

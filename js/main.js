@@ -40,3 +40,23 @@ document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(e
     container.appendChild(p);
   }
 })();
+
+/* ===== GLOBE PARALLAX ===== */
+(function globeParallax() {
+  const hero = document.querySelector('.hero');
+  const globe = document.querySelector('.hero-globe-wrap');
+  if (!hero || !globe) return;
+
+  hero.addEventListener('mousemove', function(e) {
+    const rect = hero.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    globe.style.transform = 'translateY(-50%) translate(' + (x * 20) + 'px, ' + (y * 15) + 'px)';
+  });
+
+  hero.addEventListener('mouseleave', function() {
+    globe.style.transform = 'translateY(-50%)';
+    globe.style.transition = 'transform 0.5s ease';
+    setTimeout(function() { globe.style.transition = ''; }, 500);
+  });
+})();
