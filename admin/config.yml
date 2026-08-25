@@ -1,0 +1,154 @@
+backend:
+  name: github
+  repo: Suralokin/my-site
+  branch: main
+  base_url: https://my-site-vert.vercel.app
+  auth_endpoint: /api/auth
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+publish_mode: editorial_workflow
+
+collections:
+  - name: "settings"
+    label: "Настройки сайта"
+    folder: "content"
+    create: false
+    slug: "{{slug}}"
+    fields:
+      - label: "Страница"
+        name: "title"
+        widget: "hidden"
+        default: "settings"
+      - label: "Имя"
+        name: "name"
+        widget: "string"
+      - label: "Должность"
+        name: "subtitle"
+        widget: "string"
+      - label: "Описание ( tagline)"
+        name: "tagline"
+        widget: "text"
+      - label: "Фото профиля"
+        name: "photo"
+        widget: "image"
+        allow_multiple: false
+        media_folder: "/images"
+        public_folder: "/images"
+      - label: "Telegram"
+        name: "telegram"
+        widget: "string"
+      - label: "Email"
+        name: "email"
+        widget: "string"
+
+  - name: "services"
+    label: "Услуги"
+    folder: "content/services"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - label: "Заголовок"
+        name: "title"
+        widget: "string"
+      - label: "Описание"
+        name: "description"
+        widget: "text"
+      - label: "Иконка"
+        name: "icon"
+        widget: "string"
+        hint: "Emoji или Unicode символ"
+      - label: "Теги"
+        name: "tags"
+        widget: "list"
+        field:
+          label: "Тег"
+          name: "tag"
+          widget: "string"
+      - label: "Порядок"
+        name: "order"
+        widget: "number"
+        default: 0
+
+  - name: "portfolio"
+    label: "Портфолио"
+    folder: "content/portfolio"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - label: "Заголовок"
+        name: "title"
+        widget: "string"
+      - label: "Описание"
+        name: "description"
+        widget: "text"
+      - label: "Иконка"
+        name: "icon"
+        widget: "string"
+        hint: "Emoji"
+      - label: "Стиль фона"
+        name: "bg_class"
+        widget: "select"
+        options:
+          - { label: "AI фон", value: "ai-bg" }
+          - { label: "Web фон", value: "web-bg" }
+          - { label: "Bot фон", value: "bot-bg" }
+      - label: "Ссылка"
+        name: "link"
+        widget: "string"
+        required: false
+      - label: "Порядок"
+        name: "order"
+        widget: "number"
+        default: 0
+
+  - name: "about"
+    label: "Обо мне"
+    folder: "content"
+    create: false
+    slug: "{{slug}}"
+    fields:
+      - label: "Страница"
+        name: "title"
+        widget: "hidden"
+        default: "about"
+      - label: "Текст"
+        name: "text"
+        widget: "text"
+      - label: "Статистика"
+        name: "stats"
+        widget: "list"
+        fields:
+          - label: "Число"
+            name: "number"
+            widget: "string"
+          - label: "Подпись"
+            name: "label"
+            widget: "string"
+
+  - name: "contacts"
+    label: "Контакты"
+    folder: "content"
+    create: false
+    slug: "{{slug}}"
+    fields:
+      - label: "Страница"
+        name: "title"
+        widget: "hidden"
+        default: "contacts"
+      - label: "Заголовок"
+        name: "heading"
+        widget: "string"
+      - label: "Описание"
+        name: "description"
+        widget: "text"
+      - label: "Telegram"
+        name: "telegram"
+        widget: "string"
+      - label: "Telegram URL"
+        name: "telegram_url"
+        widget: "string"
+      - label: "Email"
+        name: "email"
+        widget: "string"
