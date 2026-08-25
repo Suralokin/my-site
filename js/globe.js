@@ -156,6 +156,16 @@
     return { x: cx + x1 * R, y: cy - y1 * R };
   }
 
+  function projectStatic(lat, lng) {
+    var phi = lat * 0.01745329251994;
+    var theta = (lng + 180) * 0.01745329251994;
+    var sx = -Math.cos(phi) * Math.cos(theta);
+    var sy = Math.sin(phi);
+    var sz = Math.cos(phi) * Math.sin(theta);
+    if (sz < 0) return null;
+    return { x: cx + sx * R, y: cy - sy * R };
+  }
+
   /* ===== FLAG ===== */
   function drawFlag(x, y, code) {
     var cols = flagColors[code] || ['#333','#666','#999'];
@@ -183,7 +193,7 @@
     }
     for (i = 0; i < countryLabels.length; i++) {
       c = countryLabels[i];
-      p = project(c.lat, c.lng);
+      p = projectStatic(c.lat, c.lng);
       if (!p) continue;
       drawFlag(p.x, p.y - 14, c.code);
       ctx.font = '700 11px "Segoe UI", system-ui, sans-serif';
