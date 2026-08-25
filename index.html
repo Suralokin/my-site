@@ -882,10 +882,9 @@
             </div>
           </a>
         </div>
-        <form class="contact-form animate-on-scroll delay-2" id="contactForm" action="https://formsubmit.co/kolya_romashkin@bk.ru" method="POST" onsubmit="handleSubmit(event)">
+        <form class="contact-form animate-on-scroll delay-2" id="contactForm" action="https://formsubmit.co/kolya_romashkin@bk.ru" method="POST">
           <input type="hidden" name="_subject" value="Новое сообщение с сайта">
           <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_next" value="">
           <input type="hidden" name="_template" value="table">
           <div class="form-row">
             <div class="form-group">
@@ -966,42 +965,6 @@
       }
     })();
 
-    /* ===== FORM ===== */
-    function handleSubmit(e) {
-      e.preventDefault();
-      const form = e.target;
-      const btn = form.querySelector('.btn-submit');
-      const originalText = btn.textContent;
-
-      btn.textContent = 'Отправка...';
-      btn.disabled = true;
-
-      fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        redirect: 'follow',
-      })
-        .then(function (res) {
-          if (res.ok || res.redirected) {
-            btn.textContent = 'Отправлено! Спасибо ✓';
-            btn.style.background = 'linear-gradient(135deg, #00897b, #00bcd4)';
-            form.reset();
-          } else {
-            throw new Error();
-          }
-        })
-        .catch(function () {
-          btn.textContent = 'Ошибка. Попробуйте ещё раз';
-          btn.style.background = 'linear-gradient(135deg, #e53935, #ff5252)';
-        })
-        .finally(function () {
-          setTimeout(function () {
-            btn.textContent = originalText;
-            btn.style.background = '';
-            btn.disabled = false;
-          }, 3000);
-        });
-    }
   </script>
 </body>
 </html>
