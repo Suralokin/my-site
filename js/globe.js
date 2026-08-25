@@ -7,8 +7,8 @@
   var R = Math.round(S * 0.375);
   var cx = S / 2, cy = S / 2;
 
-  var rotY = 0;
-  var dragging = false, lastX;
+  var rotY = 0.3, rotX = -0.25;
+  var dragging = false, lastX, lastY;
   var autoRotate = true;
   var time = 0;
 
@@ -61,6 +61,23 @@
     NG: ['#008751','#fff','#008751'],
   };
 
+  /* ===== INVERSE ROTATE ===== */
+  var cosY, sinY, cosX, sinX;
+  function updateTrig() {
+    cosY = Math.cos(rotY); sinY = Math.sin(rotY);
+    cosX = Math.cos(rotX); sinX = Math.sin(rotX);
+  }
+
+  function inverseRotate(nx, ny, nz) {
+    /* First undo rotX (around X axis) */
+    var y1 = ny * cosX - nz * sinX;
+    var z1 = ny * sinX + nz * cosX;
+    /* Then undo rotY (around Y axis) */
+    var x1 = nx * cosY + z1 * sinY;
+    var z2 = -nx * sinY + z1 * cosY;
+    return { x: x1, y: y1, z: z2 };
+  }
+
   /* ===== RENDER TEXTURED SPHERE ===== */
   function renderSphere() {
     if (!texReady) {
@@ -71,11 +88,10 @@
       return;
     }
 
+    updateTrig();
     var imgData = ctx.createImageData(S, S);
     var px = imgData.data;
     var R2 = R * R;
-    var cosR = Math.cos(rotY);
-    var sinR = Math.sin(rotY);
     var invR = 1 / R;
 
     for (var y = 0; y < S; y++) {
@@ -91,16 +107,11 @@
         var ny = dy * invR;
         var nz = dz * invR;
 
-        /* Inverse rotate around Y */
-        var wx = nx * cosR + nz * sinR;
-        var wy = ny;
-        var wz = -nx * sinR + nz * cosR;
+        var w = inverseRotate(nx, ny, nz);
 
-        /* Spherical to lat/lng */
-        var lat = Math.asin(wy) * 57.29577951308232;
-        var lng = Math.atan2(wx, wz) * 57.29577951308232;
+        var lat = Math.asin(w.y) * 57.29577951308232;
+        var lng = Math.atan2(w.x, w.z) * 57.29577951308232;
 
-        /* Texture UV */
         var u = ((lng + 180) / 360) * texW;
         u = u - Math.floor(u / texW) * texW;
         var v = ((90 - lat) / 180) * texH;
@@ -111,14 +122,9 @@
 
         var tr = texData[ti], tg = texData[ti+1], tb = texData[ti+2];
 
-        /* Diffuse */
         var diff = nz * 0.55 + 0.45;
-
-        /* Fresnel */
         var f = 1 - nz;
         f = f * f * 0.2;
-
-        /* Specular */
         var spec = Math.pow(nz, 32) * 0.15;
 
         var idx = (y * S + x) * 4;
@@ -138,10 +144,16 @@
     var sx = -Math.cos(phi) * Math.cos(theta);
     var sy = Math.sin(phi);
     var sz = Math.cos(phi) * Math.sin(theta);
-    var x1 = sx * Math.cos(rotY) + sz * Math.sin(rotY);
-    var z1 = -sx * Math.sin(rotY) + sz * Math.cos(rotY);
-    if (z1 < 0) return null;
-    return { x: cx + x1 * R, y: cy - sy * R };
+
+    /* Apply rotX */
+    var y1 = sy * cosX - sz * sinX;
+    var z1 = sy * sinX + sz * cosX;
+    /* Apply rotY */
+    var x1 = sx * cosY + z1 * sinY;
+    var z2 = -sx * sinY + z1 * cosY;
+
+    if (z2 < 0) return null;
+    return { x: cx + x1 * R, y: cy - y1 * R };
   }
 
   /* ===== FLAG ===== */
@@ -222,26 +234,32 @@
     requestAnimationFrame(render);
   }
 
-  /* ===== INPUT ===== */
+  /* ===== MOUSE ===== */
   canvas.addEventListener('mousedown', function(e) {
-    dragging = true; lastX = e.clientX; autoRotate = false;
+    dragging = true; lastX = e.clientX; lastY = e.clientY; autoRotate = false;
   });
   window.addEventListener('mousemove', function(e) {
     if (!dragging) return;
     rotY += (e.clientX - lastX) * 0.006;
-    lastX = e.clientX;
+    rotX += (e.clientY - lastY) * 0.006;
+    rotX = Math.max(-1.2, Math.min(1.2, rotX));
+    lastX = e.clientX; lastY = e.clientY;
   });
   window.addEventListener('mouseup', function() {
     if (dragging) { dragging = false; setTimeout(function() { autoRotate = true; }, 2000); }
   });
+
+  /* ===== TOUCH ===== */
   canvas.addEventListener('touchstart', function(e) {
     e.preventDefault(); dragging = true;
-    lastX = e.touches[0].clientX; autoRotate = false;
+    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; autoRotate = false;
   }, { passive: false });
   canvas.addEventListener('touchmove', function(e) {
     e.preventDefault(); if (!dragging) return;
     rotY += (e.touches[0].clientX - lastX) * 0.006;
-    lastX = e.touches[0].clientX;
+    rotX += (e.touches[0].clientY - lastY) * 0.006;
+    rotX = Math.max(-1.2, Math.min(1.2, rotX));
+    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
   }, { passive: false });
   canvas.addEventListener('touchend', function() {
     dragging = false; setTimeout(function() { autoRotate = true; }, 2000);
