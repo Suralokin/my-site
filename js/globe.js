@@ -193,7 +193,7 @@
     }
     for (i = 0; i < countryLabels.length; i++) {
       c = countryLabels[i];
-      p = projectStatic(c.lat, c.lng);
+      p = project(c.lat, c.lng);
       if (!p) continue;
       drawFlag(p.x, p.y - 14, c.code);
       ctx.font = '700 11px "Segoe UI", system-ui, sans-serif';
