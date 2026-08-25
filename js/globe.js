@@ -325,46 +325,6 @@
   }
   texCtx.putImageData(texData, 0, 0);
 
-  // Draw water labels
-  texCtx.textAlign = 'center';
-  texCtx.textBaseline = 'middle';
-  for (var w = 0; w < waterBodies.length; w++) {
-    var wb = waterBodies[w];
-    var wx = lngToX(wb.lng);
-    var wy = latToY(wb.lat);
-    var fontSize = wb.size === 'large' ? 44 : wb.size === 'medium' ? 32 : 24;
-    texCtx.font = '700 ' + fontSize + 'px "Segoe UI", system-ui, sans-serif';
-    texCtx.strokeStyle = 'rgba(0,20,50,0.9)';
-    texCtx.lineWidth = 4;
-    var lines = wb.name.split('\n');
-    for (var li = 0; li < lines.length; li++) {
-      texCtx.strokeText(lines[li], wx, wy + (li - (lines.length-1)/2) * (fontSize * 1.1));
-    }
-    texCtx.fillStyle = 'rgba(60,140,220,0.7)';
-    for (var li = 0; li < lines.length; li++) {
-      texCtx.fillText(lines[li], wx, wy + (li - (lines.length-1)/2) * (fontSize * 1.1));
-    }
-  }
-
-  // Draw country labels with flags
-  texCtx.textAlign = 'center';
-  texCtx.textBaseline = 'middle';
-  for (var cl = 0; cl < countryLabels.length; cl++) {
-    var lb = countryLabels[cl];
-    var lx = lngToX(lb.lng);
-    var ly = latToY(lb.lat);
-    // Flag
-    texCtx.font = '48px serif';
-    texCtx.fillText(lb.flag, lx, ly - 22);
-    // Name
-    texCtx.font = '700 30px "Segoe UI", system-ui, sans-serif';
-    texCtx.strokeStyle = 'rgba(0,0,0,0.9)';
-    texCtx.lineWidth = 4;
-    texCtx.strokeText(lb.name, lx, ly + 14);
-    texCtx.fillStyle = '#fff';
-    texCtx.fillText(lb.name, lx, ly + 14);
-  }
-
   /* ===== 3D MATH ===== */
   function rotate(px, py, pz) {
     var x1 = px * Math.cos(rotY) - pz * Math.sin(rotY);
@@ -479,6 +439,60 @@
     ctx.stroke();
   }
 
+  /* ===== PROJECT LAT/LNG TO SCREEN ===== */
+  function projectToScreen(lat, lng) {
+    var phi = (90 - lat) * Math.PI / 180;
+    var theta = (lng + 180) * Math.PI / 180;
+    var px = -R * Math.sin(phi) * Math.cos(theta);
+    var py = R * Math.cos(phi);
+    var pz = R * Math.sin(phi) * Math.sin(theta);
+    var r = rotate(px, py, pz);
+    if (r.z < 0) return null; // behind sphere
+    return {x: cx + r.x, y: cy + r.y, z: r.z};
+  }
+
+  /* ===== DRAW 2D LABELS OVERLAY ===== */
+  function drawLabels() {
+    // Water labels
+    for (var w = 0; w < waterBodies.length; w++) {
+      var wb = waterBodies[w];
+      var pos = projectToScreen(wb.lat, wb.lng);
+      if (!pos) continue;
+      var fontSize = wb.size === 'large' ? 11 : wb.size === 'medium' ? 9 : 7;
+      ctx.font = '700 ' + fontSize + 'px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var lines = wb.name.split('\n');
+      for (var li = 0; li < lines.length; li++) {
+        var ly = pos.y + (li - (lines.length-1)/2) * (fontSize * 1.2);
+        ctx.strokeStyle = 'rgba(0,20,60,0.8)';
+        ctx.lineWidth = 3;
+        ctx.strokeText(lines[li], pos.x, ly);
+        ctx.fillStyle = 'rgba(60,150,230,0.75)';
+        ctx.fillText(lines[li], pos.x, ly);
+      }
+    }
+
+    // Country labels with flags
+    for (var cl = 0; cl < countryLabels.length; cl++) {
+      var lb = countryLabels[cl];
+      var pos = projectToScreen(lb.lat, lb.lng);
+      if (!pos) continue;
+      // Flag
+      ctx.font = '14px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(lb.flag, pos.x, pos.y - 10);
+      // Name
+      ctx.font = '700 9px "Segoe UI", system-ui, sans-serif';
+      ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+      ctx.lineWidth = 3;
+      ctx.strokeText(lb.name, pos.x, pos.y + 3);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(lb.name, pos.x, pos.y + 3);
+    }
+  }
+
   /* ===== MAIN LOOP ===== */
   function render() {
     ctx.clearRect(0, 0, W, H);
@@ -486,6 +500,7 @@
     if (autoRotate && !dragging) rotY += autoSpeed;
 
     drawTexturedSphere();
+    drawLabels();
     drawAtmosphere();
     drawBorder();
 
