@@ -3,133 +3,978 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мой первый сайт</title>
+  <title>Ромашкин Николай — Разработчик ИИ-приложений и Веб-сайтов</title>
+  <meta name="description" content="Разработка приложений на базе ИИ, вёрстка сайтов и лендингов. Индивидуальный подход, современные технологии.">
   <style>
+    :root {
+      --bg-primary: #06060f;
+      --bg-secondary: #0c0c1d;
+      --bg-card: rgba(15, 15, 35, 0.7);
+      --blue-deep: #0d47a1;
+      --blue-mid: #1976d2;
+      --blue-light: #42a5f5;
+      --blue-glow: #64b5f6;
+      --cyan: #00e5ff;
+      --text-primary: #e8eaf6;
+      --text-secondary: #9fa8da;
+      --text-muted: #5c6bc0;
+      --gradient-hero: linear-gradient(135deg, #0d47a1 0%, #1a237e 40%, #4a148c 100%);
+      --gradient-accent: linear-gradient(135deg, #0d47a1, #00bcd4);
+      --gradient-card: linear-gradient(145deg, rgba(13,71,161,0.15), rgba(0,188,212,0.08));
+      --shadow-glow: 0 0 40px rgba(66,165,245,0.15);
+      --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #1a1a2e;
-      color: #eee;
-      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--blue-deep); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--blue-mid); }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(66,165,245,0.3); }
+      50% { box-shadow: 0 0 40px rgba(66,165,245,0.6), 0 0 80px rgba(0,229,255,0.2); }
+    }
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes particle-float {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      25% { transform: translate(30px, -40px) scale(1.1); opacity: 0.6; }
+      50% { transform: translate(-20px, -70px) scale(0.9); opacity: 0.4; }
+      75% { transform: translate(40px, -30px) scale(1.05); opacity: 0.5; }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .animate-on-scroll.delay-1 { transition-delay: 0.15s; }
+    .animate-on-scroll.delay-2 { transition-delay: 0.3s; }
+    .animate-on-scroll.delay-3 { transition-delay: 0.45s; }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 16px 0;
+      transition: var(--transition);
+      background: transparent;
+    }
+    .navbar.scrolled {
+      background: rgba(6,6,15,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(66,165,245,0.1);
+      padding: 10px 0;
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 2px;
+      background: var(--gradient-accent);
+      transition: var(--transition);
+    }
+    .nav-links a:hover { color: var(--blue-light); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 1001;
+    }
+    .burger span {
+      width: 26px; height: 2px;
+      background: var(--text-primary);
+      transition: var(--transition);
+      border-radius: 2px;
+    }
+    .burger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .burger.active span:nth-child(2) { opacity: 0; }
+    .burger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(6,6,15,0.97);
+      backdrop-filter: blur(20px);
+      z-index: 999;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 32px;
     }
+    .mobile-menu.active { display: flex; }
+    .mobile-menu a {
+      font-size: 1.4rem;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+    .mobile-menu a:hover { color: var(--blue-light); }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #e94560, #0f3460);
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 120px 24px 80px;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: var(--gradient-hero);
+      opacity: 0.4;
+    }
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: var(--blue-light);
+      border-radius: 50%;
+      animation: particle-float linear infinite;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      max-width: 1100px;
+      width: 100%;
+    }
+    .hero-photo-wrap {
+      flex-shrink: 0;
+      position: relative;
+    }
+    .hero-photo {
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(66,165,245,0.3);
+      animation: pulse-glow 4s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-photo-ring {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--cyan);
+      border-right-color: var(--blue-light);
+      animation: spin 8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hero-text h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero-text h1 .gradient {
+      background: linear-gradient(135deg, var(--blue-light), var(--cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-
-    .card {
-      background: #16213e;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      text-align: center;
-      width: 350px;
+    .hero-text .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
     }
-
-    #counter {
-      font-size: 4rem;
-      margin: 20px 0;
-      color: #e94560;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    button {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
+    .hero-text .tagline {
       font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      max-width: 500px;
+      line-height: 1.8;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.15s, opacity 0.15s;
+      border: none;
+      transition: var(--transition);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(13,71,161,0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(13,71,161,0.6);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--blue-light);
+      border: 2px solid rgba(66,165,245,0.4);
+    }
+    .btn-outline:hover {
+      background: rgba(66,165,245,0.1);
+      border-color: var(--blue-light);
+      transform: translateY(-3px);
     }
 
-    button:active { transform: scale(0.95); }
-    button:hover { opacity: 0.85; }
-
-    .btn-minus { background: #e94560; color: #fff; }
-    .btn-plus  { background: #0f3460; color: #fff; }
-    .btn-reset { background: #533483; color: #fff; }
-
-    #message {
-      margin-top: 16px;
+    /* ===== SECTIONS ===== */
+    .section {
+      padding: 100px 24px;
+      position: relative;
+    }
+    .section-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .section-title h2 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .section-title h2 .gradient {
+      background: linear-gradient(135deg, var(--blue-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-title p {
+      color: var(--text-secondary);
       font-size: 1.1rem;
-      min-height: 24px;
-      color: #a8a8d8;
+      max-width: 550px;
+      margin: 0 auto;
+    }
+    .section-divider {
+      width: 60px; height: 3px;
+      background: var(--gradient-accent);
+      border-radius: 2px;
+      margin: 16px auto 0;
     }
 
-    #time {
-      margin-top: 20px;
+    /* ===== SERVICES ===== */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+    .service-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(66,165,245,0.1);
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-accent);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .service-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(66,165,245,0.3);
+      box-shadow: var(--shadow-glow);
+    }
+    .service-card:hover::before { opacity: 1; }
+    .service-icon {
+      width: 64px; height: 64px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, rgba(13,71,161,0.3), rgba(0,188,212,0.15));
+      border: 1px solid rgba(66,165,245,0.2);
+    }
+    .service-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .service-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .service-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: rgba(13,71,161,0.2);
+      color: var(--blue-light);
+      border: 1px solid rgba(66,165,245,0.15);
+    }
+
+    /* ===== ABOUT ===== */
+    .about-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .about-text p {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+      line-height: 1.9;
+    }
+    .about-text .highlight {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .stat-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(66,165,245,0.1);
+      border-radius: var(--radius-sm);
+      padding: 28px 20px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .stat-card:hover {
+      border-color: rgba(66,165,245,0.3);
+      transform: translateY(-4px);
+    }
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--blue-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ===== PORTFOLIO ===== */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+    }
+    .portfolio-card {
+      background: var(--gradient-card);
+      border: 1px solid rgba(66,165,245,0.1);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .portfolio-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(66,165,245,0.3);
+      box-shadow: var(--shadow-glow);
+    }
+    .portfolio-preview {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .portfolio-preview.ai-bg {
+      background: linear-gradient(135deg, #0d47a1, #4a148c);
+    }
+    .portfolio-preview.web-bg {
+      background: linear-gradient(135deg, #004d40, #006064);
+    }
+    .portfolio-preview.bot-bg {
+      background: linear-gradient(135deg, #1a237e, #0d47a1);
+    }
+    .portfolio-info {
+      padding: 24px;
+    }
+    .portfolio-info h3 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+    .portfolio-info p {
+      color: var(--text-secondary);
       font-size: 0.9rem;
-      color: #666;
+      margin-bottom: 16px;
+    }
+    .portfolio-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--blue-light);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .portfolio-link:hover { color: var(--cyan); gap: 10px; }
+
+    /* ===== CONTACTS ===== */
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .contact-info h3 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+    .contact-info > p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.8;
+    }
+    .contact-method {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--gradient-card);
+      border: 1px solid rgba(66,165,245,0.1);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+    .contact-method:hover {
+      border-color: rgba(66,165,245,0.3);
+      transform: translateX(6px);
+    }
+    .contact-method-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      background: rgba(13,71,161,0.3);
+      flex-shrink: 0;
+    }
+    .contact-method-text small {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .contact-method-text p {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .contact-form {
+      background: var(--gradient-card);
+      border: 1px solid rgba(66,165,245,0.1);
+      border-radius: var(--radius);
+      padding: 36px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(66,165,245,0.15);
+      background: rgba(6,6,15,0.6);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--blue-light);
+      box-shadow: 0 0 0 3px rgba(66,165,245,0.1);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-submit:hover {
+      box-shadow: 0 8px 32px rgba(13,71,161,0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      border-top: 1px solid rgba(66,165,245,0.08);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .footer-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .footer-socials {
+      display: flex;
+      gap: 16px;
+    }
+    .social-link {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13,71,161,0.15);
+      border: 1px solid rgba(66,165,245,0.1);
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+    .social-link:hover {
+      background: rgba(66,165,245,0.2);
+      border-color: var(--blue-light);
+      transform: translateY(-3px);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-text h1 { font-size: 2.2rem; }
+      .hero-text .tagline { margin: 0 auto 36px; }
+      .hero-buttons { justify-content: center; }
+      .hero-photo { width: 200px; height: 200px; }
+      .about-content { grid-template-columns: 1fr; gap: 40px; }
+      .contact-wrapper { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .section { padding: 70px 20px; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      .hero-text h1 { font-size: 1.8rem; }
+      .hero-text .subtitle { font-size: 1.05rem; }
+      .section-title h2 { font-size: 1.8rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .footer-content { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <h1>Демо-сайт с JavaScript</h1>
-
-  <div class="card">
-    <p>Счётчик нажатий:</p>
-    <div id="counter">0</div>
-
-    <div class="buttons">
-      <button class="btn-minus" onclick="change(-1)">- 1</button>
-      <button class="btn-reset" onclick="reset()">Сброс</button>
-      <button class="btn-plus"  onclick="change(1)">+ 1</button>
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">&lt;N.R /&gt;</a>
+      <ul class="nav-links">
+        <li><a href="#services">Услуги</a></li>
+        <li><a href="#about">Обо мне</a></li>
+        <li><a href="#portfolio">Портфолио</a></li>
+        <li><a href="#contacts">Контакты</a></li>
+      </ul>
+      <div class="burger" id="burger" onclick="toggleBurger()">
+        <span></span><span></span><span></span>
+      </div>
     </div>
+  </nav>
 
-    <p id="message"></p>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services" onclick="closeBurger()">Услуги</a>
+    <a href="#about" onclick="closeBurger()">Обо мне</a>
+    <a href="#portfolio" onclick="closeBurger()">Портфолио</a>
+    <a href="#contacts" onclick="closeBurger()">Контакты</a>
   </div>
 
-  <p id="time"></p>
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-particles" id="particles"></div>
+    <div class="hero-content">
+      <div class="hero-photo-wrap">
+        <img src="photo.jpg" alt="Ромашкин Николай" class="hero-photo">
+        <div class="hero-photo-ring"></div>
+      </div>
+      <div class="hero-text">
+        <h1>Привет, я <span class="gradient">Николай Ромашкин</span></h1>
+        <p class="subtitle">Разработчик ИИ-приложений & Веб-сайтов</p>
+        <p class="tagline">Создаю современные решения на базе искусственного интеллекта, проектирую и вёрстаю сайты и лендинги, которые помогают бизнесу расти.</p>
+        <div class="hero-buttons">
+          <a href="#contacts" class="btn btn-primary">Связаться со мной</a>
+          <a href="#services" class="btn btn-outline">Мои услуги</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section" id="services">
+    <div class="section-container">
+      <div class="section-title animate-on-scroll">
+        <h2>Мои <span class="gradient">услуги</span></h2>
+        <p>Комплексные решения для вашего бизнеса — от идеи до готового продукта</p>
+        <div class="section-divider"></div>
+      </div>
+      <div class="services-grid">
+        <div class="service-card animate-on-scroll delay-1">
+          <div class="service-icon">🤖</div>
+          <h3>ИИ-разработка приложений</h3>
+          <p>Разработка интеллектуальных приложений и ботов на базе нейросетей. Автоматизация бизнес-процессов, чат-боты, интеграция с GPT и другими моделями ИИ.</p>
+          <div class="service-tags">
+            <span class="tag">GPT / LLM</span>
+            <span class="tag">Чат-боты</span>
+            <span class="tag">Автоматизация</span>
+            <span class="tag">AI-ассистенты</span>
+          </div>
+        </div>
+        <div class="service-card animate-on-scroll delay-2">
+          <div class="service-icon">🌐</div>
+          <h3>Вёрстка сайтов и лендингов</h3>
+          <p>Проектирую и вёрстаю современные, адаптивные сайты и одностраничные лендинги. Чистый код, привлекательный дизайн, высокая скорость загрузки.</p>
+          <div class="service-tags">
+            <span class="tag">HTML / CSS</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">Адаптивность</span>
+            <span class="tag">UI/UX</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about" style="background: var(--bg-secondary);">
+    <div class="section-container">
+      <div class="section-title animate-on-scroll">
+        <h2>Обо <span class="gradient">мне</span></h2>
+        <p>Немного о моём опыте и подходе к работе</p>
+        <div class="section-divider"></div>
+      </div>
+      <div class="about-content">
+        <div class="about-text animate-on-scroll delay-1">
+          <p>Меня зовут <span class="highlight">Николай Ромашкин</span> — я разработчик и диджитал-специалист. Специализируюсь на создании решений с использованием <span class="highlight">искусственного интеллекта</span> и разработке веб-продуктов.</p>
+          <p>Мой подход — сочетание <span class="highlight">современных технологий</span> с пониманием бизнес-задач. Каждый проект — это индивидуальное решение, ориентированное на результат: будь то智能-бот для автоматизации или продающий лендинг.</p>
+          <p>Постоянно развиваюсь в области AI/ML и веб-технологий, чтобы предлагать клиентам <span class="highlight">самые передовые решения</span> на рынке.</p>
+        </div>
+        <div class="stats-grid animate-on-scroll delay-2">
+          <div class="stat-card">
+            <div class="stat-number">5+</div>
+            <div class="stat-label">Лет опыта</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">30+</div>
+            <div class="stat-label">Проектов</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">AI</div>
+            <div class="stat-label">Специализация</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Ответственность</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section class="section" id="portfolio">
+    <div class="section-container">
+      <div class="section-title animate-on-scroll">
+        <h2>Портфолио</h2>
+        <p>Примеры моих работ и проектов</p>
+        <div class="section-divider"></div>
+      </div>
+      <div class="portfolio-grid">
+        <div class="portfolio-card animate-on-scroll delay-1">
+          <div class="portfolio-preview ai-bg">🧠</div>
+          <div class="portfolio-info">
+            <h3>AI Чат-бот для бизнеса</h3>
+            <p>Интеллектуальный чат-бот, автоматизирующий общение с клиентами и обработку заявок.</p>
+            <a href="#" class="portfolio-link">Подробнее &rarr;</a>
+          </div>
+        </div>
+        <div class="portfolio-card animate-on-scroll delay-2">
+          <div class="portfolio-preview web-bg">💻</div>
+          <div class="portfolio-info">
+            <h3>Корпоративный лендинг</h3>
+            <p>Современный одностраничный сайт с адаптивной вёрсткой и анимациями.</p>
+            <a href="#" class="portfolio-link">Подробнее &rarr;</a>
+          </div>
+        </div>
+        <div class="portfolio-card animate-on-scroll delay-3">
+          <div class="portfolio-preview bot-bg">⚡</div>
+          <div class="portfolio-info">
+            <h3>AI-ассистент для Telegram</h3>
+            <p>Telegram-бот на базе GPT для автоматизации задач и консультаций.</p>
+            <a href="#" class="portfolio-link">Подробнее &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTS -->
+  <section class="section" id="contacts" style="background: var(--bg-secondary);">
+    <div class="section-container">
+      <div class="section-title animate-on-scroll">
+        <h2>Свяжитесь <span class="gradient">со мной</span></h2>
+        <p>Готов обсудить ваш проект и найти лучшее решение</p>
+        <div class="section-divider"></div>
+      </div>
+      <div class="contact-wrapper">
+        <div class="contact-info animate-on-scroll delay-1">
+          <h3>Давайте работать вместе</h3>
+          <p>Есть идея для проекта или нужна консультация? Напишите мне, и я отвечу в течение 24 часов.</p>
+          <a href="https://t.me/suralokin1998" target="_blank" class="contact-method">
+            <div class="contact-method-icon">✈️</div>
+            <div class="contact-method-text">
+              <small>Telegram</small>
+              <p>@suralokin1998</p>
+            </div>
+          </a>
+          <a href="mailto:your@email.com" class="contact-method">
+            <div class="contact-method-icon">📧</div>
+            <div class="contact-method-text">
+              <small>Email</small>
+              <p>your@email.com</p>
+            </div>
+          </a>
+        </div>
+        <form class="contact-form animate-on-scroll delay-2" id="contactForm" onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Ваше имя</label>
+              <input type="text" id="name" placeholder="Иван Иванов" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Телефон</label>
+              <input type="tel" id="phone" placeholder="+7 (999) 123-45-67">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="your@email.com" required>
+          </div>
+          <div class="form-group">
+            <label for="message">Сообщение</label>
+            <textarea id="message" placeholder="Опишите ваш проект или задайте вопрос..." required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Отправить сообщение</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <span class="footer-text">&copy; 2026 Николай Ромашкин. Все права защищены.</span>
+      <div class="footer-socials">
+        <a href="https://t.me/suralokin1998" target="_blank" class="social-link" title="Telegram">✈️</a>
+        <a href="mailto:your@email.com" class="social-link" title="Email">📧</a>
+      </div>
+    </div>
+  </footer>
 
   <script>
-    let count = 0;
+    /* ===== NAVBAR SCROLL ===== */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
 
-    const counterEl = document.getElementById('counter');
-    const messageEl = document.getElementById('message');
-    const timeEl    = document.getElementById('time');
-
-    function change(value) {
-      count += value;
-      counterEl.textContent = count;
-      showMessage();
+    /* ===== BURGER ===== */
+    function toggleBurger() {
+      document.getElementById('burger').classList.toggle('active');
+      document.getElementById('mobileMenu').classList.toggle('active');
+    }
+    function closeBurger() {
+      document.getElementById('burger').classList.remove('active');
+      document.getElementById('mobileMenu').classList.remove('active');
     }
 
-    function reset() {
-      count = 0;
-      counterEl.textContent = count;
-      messageEl.textContent = 'Счётчик сброшен!';
-    }
+    /* ===== SCROLL ANIMATIONS (Intersection Observer) ===== */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-    function showMessage() {
-      if (count > 10)      messageEl.textContent = 'Ого, много кликов!';
-      else if (count < 0)  messageEl.textContent = 'Отрицательное число!';
-      else if (count === 0) messageEl.textContent = '';
-      else                  messageEl.textContent = `Вы нажали ${count} раз`;
-    }
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
-    function updateTime() {
-      const now = new Date();
-      timeEl.textContent = 'Текущее время: ' + now.toLocaleTimeString('ru-RU');
-    }
+    /* ===== PARTICLES ===== */
+    (function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.classList.add('particle');
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = Math.random() * 100 + '%';
+        p.style.width = p.style.height = (Math.random() * 4 + 2) + 'px';
+        p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        p.style.opacity = Math.random() * 0.4 + 0.1;
+        container.appendChild(p);
+      }
+    })();
 
-    setInterval(updateTime, 1000);
-    updateTime();
+    /* ===== FORM ===== */
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.btn-submit');
+      const originalText = btn.textContent;
+      btn.textContent = 'Отправлено! Спасибо ✓';
+      btn.style.background = 'linear-gradient(135deg, #00897b, #00bcd4)';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+        e.target.reset();
+      }, 3000);
+    }
   </script>
-
 </body>
 </html>
