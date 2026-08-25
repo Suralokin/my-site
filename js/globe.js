@@ -232,7 +232,7 @@
   ];
 
   /* ===== GENERATE EQUIRECTANGULAR TEXTURE ===== */
-  var texW = 720, texH = 360;
+  var texW = 1440, texH = 720;
   var texCanvas = document.createElement('canvas');
   texCanvas.width = texW;
   texCanvas.height = texH;
@@ -335,21 +335,33 @@
   texCtx.putImageData(texData, 0, 0);
 
   // Draw water labels on texture
-  texCtx.font = '600 10px "Segoe UI", system-ui, sans-serif';
-  texCtx.fillStyle = 'rgba(40,100,160,0.5)';
+  texCtx.font = '700 22px "Segoe UI", system-ui, sans-serif';
   texCtx.textAlign = 'center';
+  texCtx.textBaseline = 'middle';
   for (var w = 0; w < waterBodies.length; w++) {
     var wb = waterBodies[w];
-    texCtx.fillText(wb.name, lngToX(wb.lng), latToY(wb.lat));
+    var wx = lngToX(wb.lng);
+    var wy = latToY(wb.lat);
+    texCtx.strokeStyle = 'rgba(0,30,60,0.7)';
+    texCtx.lineWidth = 3;
+    texCtx.strokeText(wb.name, wx, wy);
+    texCtx.fillStyle = 'rgba(100,180,255,0.8)';
+    texCtx.fillText(wb.name, wx, wy);
   }
 
   // Draw country labels on texture
-  texCtx.font = '600 8px "Segoe UI", system-ui, sans-serif';
-  texCtx.fillStyle = 'rgba(255,255,255,0.6)';
+  texCtx.font = '700 16px "Segoe UI", system-ui, sans-serif';
   texCtx.textAlign = 'center';
+  texCtx.textBaseline = 'middle';
   for (var cl = 0; cl < countryLabels.length; cl++) {
     var lb = countryLabels[cl];
-    texCtx.fillText(lb.name, lngToX(lb.lng), latToY(lb.lat));
+    var lx = lngToX(lb.lng);
+    var ly = latToY(lb.lat);
+    texCtx.strokeStyle = 'rgba(0,0,0,0.8)';
+    texCtx.lineWidth = 3;
+    texCtx.strokeText(lb.name, lx, ly);
+    texCtx.fillStyle = '#fff';
+    texCtx.fillText(lb.name, lx, ly);
   }
 
   /* ===== 3D MATH ===== */
