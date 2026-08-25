@@ -39,51 +39,13 @@
     {lat:60,lng:40,name:'Россия',flag:'🇷🇺'},
     {lat:35,lng:105,name:'Китай',flag:'🇨🇳'},
     {lat:22,lng:78,name:'Индия',flag:'🇮🇳'},
-    {lat:10,lng:8,name:'Нигерия',flag:'🇳🇬'},
-    {lat:-25,lng:27,name:'ЮАР',flag:'🇿🇦'},
-    {lat:25,lng:45,name:'Саудовская Аравия',flag:'🇸🇦'},
-    {lat:39,lng:35,name:'Турция',flag:'🇹🇷'},
-    {lat:52,lng:-1,name:'Англия',flag:'🇬🇧'},
-    {lat:47,lng:2,name:'Франция',flag:'🇫🇷'},
-    {lat:51,lng:10,name:'Германия',flag:'🇩🇪'},
-    {lat:42,lng:12,name:'Италия',flag:'🇮🇹'},
-    {lat:40,lng:-4,name:'Испания',flag:'🇪🇸'},
-    {lat:62,lng:15,name:'Швеция',flag:'🇸🇪'},
-    {lat:48,lng:-100,name:'Канада',flag:'🇨🇦'},
     {lat:38,lng:-97,name:'США',flag:'🇺🇸'},
     {lat:-15,lng:-50,name:'Бразилия',flag:'🇧🇷'},
-    {lat:-35,lng:-64,name:'Аргентина',flag:'🇦🇷'},
-    {lat:23,lng:-102,name:'Мексика',flag:'🇲🇽'},
     {lat:-25,lng:134,name:'Австралия',flag:'🇦🇺'},
-    {lat:-41,lng:174,name:'НЗ',flag:'🇳🇿'},
     {lat:36,lng:138,name:'Япония',flag:'🇯🇵'},
-    {lat:37,lng:127,name:'Корея',flag:'🇰🇷'},
-    {lat:-5,lng:120,name:'Индонезия',flag:'🇮🇩'},
-    {lat:13,lng:122,name:'Филиппины',flag:'🇵🇭'},
-    {lat:24,lng:54,name:'ОАЭ',flag:'🇦🇪'},
-    {lat:33,lng:44,name:'Ирак',flag:'🇮🇶'},
-    {lat:32,lng:53,name:'Иран',flag:'🇮🇷'},
-    {lat:28,lng:84,name:'Непал',flag:'🇳🇵'},
-    {lat:24,lng:90,name:'Бангладеш',flag:'🇧🇩'},
-    {lat:16,lng:100,name:'Таиланд',flag:'🇹🇭'},
-    {lat:19,lng:96,name:'Мьянма',flag:'🇲🇲'},
-    {lat:15,lng:108,name:'Вьетнам',flag:'🇻🇳'},
-    {lat:4,lng:114,name:'Малайзия',flag:'🇲🇾'},
-    {lat:-1,lng:-72,name:'Колумбия',flag:'🇨🇴'},
-    {lat:-5,lng:-80,name:'Перу',flag:'🇵🇪'},
-    {lat:-16,lng:-68,name:'Боливия',flag:'🇧🇴'},
-    {lat:-33,lng:-71,name:'Чили',flag:'🇨🇱'},
-    {lat:64,lng:-20,name:'Исландия',flag:'🇮🇸'},
-    {lat:53,lng:-8,name:'Ирландия',flag:'🇮🇪'},
-    {lat:47,lng:8,name:'Швейцария',flag:'🇨🇭'},
-    {lat:49,lng:32,name:'Украина',flag:'🇺🇦'},
-    {lat:52,lng:21,name:'Польша',flag:'🇵🇱'},
-    {lat:54,lng:24,name:'Литва',flag:'🇱🇹'},
-    {lat:57,lng:25,name:'Латвия',flag:'🇱🇻'},
-    {lat:59,lng:26,name:'Эстония',flag:'🇪🇪'},
-    {lat:42,lng:23,name:'Болгария',flag:'🇧🇬'},
-    {lat:38,lng:24,name:'Греция',flag:'🇬🇷'},
-    {lat:47,lng:25,name:'Румыния',flag:'🇷🇴'},
+    {lat:48,lng:-100,name:'Канада',flag:'🇨🇦'},
+    {lat:52,lng:-1,name:'Англия',flag:'🇬🇧'},
+    {lat:10,lng:8,name:'Нигерия',flag:'🇳🇬'},
   ];
 
   /* ===== SEAS AND OCEANS ===== */
@@ -156,7 +118,11 @@
         if (lng < -180) lng += 360;
         if (lng > 180) lng -= 360;
 
-        var texX = Math.floor(((lng + 180) / 360) * texW) % texW;
+        var texX = ((lng + 180) / 360) * texW;
+        texX = texX - Math.floor(texX / texW) * texW;
+        if (texX < 0) texX = 0;
+        if (texX >= texW) texX = texW - 1;
+        texX = Math.floor(texX);
         var texY = Math.floor(((90 - lat) / 180) * texH);
         texY = Math.max(0, Math.min(texH - 1, texY));
 
