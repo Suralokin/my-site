@@ -211,7 +211,7 @@
   function render() {
     ctx.clearRect(0, 0, S, S);
     time += 0.016;
-    if (autoRotate && !dragging) rotY += 0.005;
+    if (autoRotate && !dragging) rotY += 0.001;
     if (rotY > 6.28318) rotY -= 6.28318;
     if (rotY < 0) rotY += 6.28318;
 
