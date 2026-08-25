@@ -181,6 +181,23 @@
     ctx.restore();
   }
 
+  /* ===== SUBDIVIDE POLYGON (interpolate edges) ===== */
+  function subdivide(pts, steps) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[i];
+      var b = pts[(i + 1) % pts.length];
+      for (var t = 0; t < steps; t++) {
+        var f = t / steps;
+        out.push([
+          a[0] + (b[0] - a[0]) * f,
+          a[1] + (b[1] - a[1]) * f
+        ]);
+      }
+    }
+    return out;
+  }
+
   /* ===== DRAW CONTINENTS ===== */
   function drawContinents() {
     ctx.save();
@@ -190,44 +207,71 @@
 
     for (var c = 0; c < continents.length; c++) {
       var cont = continents[c];
-      var pts = cont.pts;
-      // Find front-facing points and triangulate as filled polygon
+      var pts = subdivide(cont.pts, 8);
+
+      // Project all points
       var projected = [];
-      var allFront = true;
       for (var i = 0; i < pts.length; i++) {
-        var p = project(pts[i][0], pts[i][1]);
-        projected.push(p);
-        if (p.z <= 0) allFront = false;
+        projected.push(project(pts[i][0], pts[i][1]));
       }
 
-      // Draw filled polygon (even if some points are behind, it creates natural cutoff)
+      // --- Pass 1: Fill visible front-facing polygon ---
       ctx.beginPath();
       var started = false;
       for (var i = 0; i < projected.length; i++) {
         var p = projected[i];
         if (p.z <= 0) continue;
-        // Light based on normal
-        var nx = (p.x - cx) / R;
-        var ny = (p.y - cy) / R;
-        var light = Math.max(0, nx * 0.4 + ny * -0.3 + 0.6);
-
         if (!started) { ctx.moveTo(p.x, p.y); started = true; }
         else ctx.lineTo(p.x, p.y);
       }
       ctx.closePath();
-
-      // Continent fill with lighting
-      var baseR = 26, baseG = 122, baseB = 58;
-      var r = Math.round(baseR * (0.3 + light * 0.7));
-      var g = Math.round(baseG * (0.3 + light * 0.7));
-      var b = Math.round(baseB * (0.3 + light * 0.7));
-      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+      ctx.fillStyle = 'rgba(22,100,45,0.85)';
       ctx.fill();
 
-      // Border
-      ctx.strokeStyle = 'rgba(40,160,80,' + (0.15 + light * 0.2) + ')';
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
+      // --- Pass 2: Draw lit border segments ---
+      for (var i = 0; i < projected.length; i++) {
+        var p0 = projected[i];
+        var p1 = projected[(i + 1) % projected.length];
+        if (p0.z <= 0 || p1.z <= 0) continue;
+
+        var nz = (p0.z + p1.z) / (2 * R);
+        var edgeFade = Math.max(0, Math.min(1, nz * 2.5));
+        var nx = ((p0.x - cx) + (p1.x - cx)) / (2 * R);
+        var ny = ((p0.y - cy) + (p1.y - cy)) / (2 * R);
+        var light = Math.max(0, nx * 0.3 + ny * -0.2 + 0.6);
+        var combined = light * edgeFade;
+
+        var r = Math.round(22 + 30 * combined);
+        var g = Math.round(90 + 60 * combined);
+        var b = Math.round(40 + 20 * combined);
+
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+
+      // --- Pass 3: Specular on continent edges facing light ---
+      for (var i = 0; i < projected.length; i++) {
+        var p0 = projected[i];
+        var p1 = projected[(i + 1) % projected.length];
+        if (p0.z <= 20 || p1.z <= 20) continue;
+
+        var nx = ((p0.x - cx) + (p1.x - cx)) / (2 * R);
+        var ny = ((p0.y - cy) + (p1.y - cy)) / (2 * R);
+        var spec = Math.max(0, nx * -0.5 + ny * 0.4 + 0.3);
+        if (spec < 0.5) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.strokeStyle = 'rgba(120,200,140,' + (spec * 0.3) + ')';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }
