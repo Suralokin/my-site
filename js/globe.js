@@ -41,11 +41,11 @@
   ];
 
   var waterBodies = [
-    {lat:0,lng:-30,name:'Атлантический',sz:10},
-    {lat:0,lng:170,name:'Тихий',sz:10},
-    {lat:-25,lng:70,name:'Индийский',sz:10},
-    {lat:78,lng:0,name:'Сев. Ледовитый',sz:9},
-    {lat:-60,lng:0,name:'Южный',sz:9},
+    {lat:0,lng:-30,name:'Атлантический',sz:12},
+    {lat:0,lng:170,name:'Тихий',sz:12},
+    {lat:-25,lng:70,name:'Индийский',sz:12},
+    {lat:78,lng:0,name:'Сев. Ледовитый',sz:11},
+    {lat:-60,lng:0,name:'Южный',sz:11},
   ];
 
   var flagColors = {
@@ -159,7 +159,7 @@
   /* ===== FLAG ===== */
   function drawFlag(x, y, code) {
     var cols = flagColors[code] || ['#333','#666','#999'];
-    var w = 18, h = 12, lx = x - w/2, ly = y - h/2;
+    var w = 22, h = 14, lx = x - w/2, ly = y - h/2;
     ctx.fillStyle = cols[0]; ctx.fillRect(lx, ly, w, h/3);
     ctx.fillStyle = cols[1]; ctx.fillRect(lx, ly+h/3, w, h/3);
     ctx.fillStyle = cols[2]; ctx.fillRect(lx, ly+2*h/3, w, h/3);
@@ -185,8 +185,8 @@
       c = countryLabels[i];
       p = project(c.lat, c.lng);
       if (!p) continue;
-      drawFlag(p.x, p.y - 10, c.code);
-      ctx.font = '700 8px "Segoe UI", system-ui, sans-serif';
+      drawFlag(p.x, p.y - 14, c.code);
+      ctx.font = '700 11px "Segoe UI", system-ui, sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.lineWidth = 3;
       ctx.strokeText(c.name, p.x, p.y + 2);
