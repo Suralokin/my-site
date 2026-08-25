@@ -1,9 +1,13 @@
 /* ===== CMS CONTENT LOADER ===== */
 (function() {
-  var BASE = 'content/';
+  var API = '/api/content';
 
-  function fetchJSON(path) {
-    return fetch(BASE + path).then(function(r) {
+  function fetchContent() {
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: '__public__', action: 'read' })
+    }).then(function(r) {
       if (!r.ok) return null;
       return r.json();
     }).catch(function() { return null; });
@@ -90,16 +94,16 @@
     }
   }
 
-  /* ===== PORTFOLIO ===== */
+  /* ===== PORTFOLIO (SLIDER) ===== */
   function applyPortfolio(items) {
     if (!items || !items.length) return;
     items.sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
-    var grid = document.querySelector('.portfolio-grid');
-    if (!grid) return;
+    var track = document.getElementById('portfolioTrack');
+    if (!track) return;
     var html = '';
     for (var i = 0; i < items.length; i++) {
       var p = items[i];
-      html += '<div class="portfolio-card animate-on-scroll delay-' + (i + 1) + '">'
+      html += '<div class="portfolio-card' + (i === 0 ? ' active-slide' : '') + '">'
         + '<div class="portfolio-preview ' + (p.bg_class || '') + '">' + (p.icon || '📁') + '</div>'
         + '<div class="portfolio-info">'
         + '<h3>' + esc(p.title) + '</h3>'
@@ -107,7 +111,8 @@
         + '<a href="' + esc(p.link || '#') + '" class="portfolio-link">Подробнее &rarr;</a>'
         + '</div></div>';
     }
-    grid.innerHTML = html;
+    track.innerHTML = html;
+    if (typeof initSlider === 'function') initSlider();
   }
 
   /* ===== CONTACTS ===== */
@@ -137,23 +142,13 @@
 
   /* ===== LOAD ALL ===== */
   function loadAll() {
-    return Promise.all([
-      fetchJSON('settings.json'),
-      fetchJSON('about.json'),
-      fetchJSON('contacts.json'),
-      fetchJSON('services/ai-development.json'),
-      fetchJSON('services/web-development.json'),
-      fetchJSON('portfolio/ai-chatbot.json'),
-      fetchJSON('portfolio/corporate-landing.json'),
-      fetchJSON('portfolio/telegram-assistant.json')
-    ]).then(function(results) {
-      applySettings(results[0]);
-      applyAbout(results[1]);
-      applyContacts(results[2]);
-      var services = [results[3], results[4]].filter(Boolean);
-      applyServices(services);
-      var portfolio = [results[5], results[6], results[7]].filter(Boolean);
-      applyPortfolio(portfolio);
+    return fetchContent().then(function(data) {
+      if (!data) return;
+      applySettings(data.settings);
+      applyAbout(data.about);
+      applyContacts(data.contacts);
+      applyServices(data.services);
+      applyPortfolio(data.portfolio);
     });
   }
 
