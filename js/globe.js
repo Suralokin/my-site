@@ -101,12 +101,12 @@
         var lng = Math.atan2(wx, wz) * 57.29577951308232;
 
         /* Texture UV */
-        var u = (lng + 180) * 0.00277777777778 * texW;
-        u = u - Math.floor(u);
-        var v = (90 - lat) * 0.00555555555556 * texH;
+        var u = ((lng + 180) / 360) * texW;
+        u = u - Math.floor(u / texW) * texW;
+        var v = ((90 - lat) / 180) * texH;
         if (v < 0) v = 0;
         if (v >= texH) v = texH - 1;
-        var ti = (~~v * texW + ~~(u * texW)) * 4;
+        var ti = (~~v * texW + ~~u) * 4;
         if (ti < 0 || ti + 2 >= texData.length) continue;
 
         var tr = texData[ti], tg = texData[ti+1], tb = texData[ti+2];
