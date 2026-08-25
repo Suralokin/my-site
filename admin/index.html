@@ -5,44 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — Мой сайт</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0f1a; color: #e0e0e0; min-height: 100vh; }
-    .login { max-width: 360px; margin: 15vh auto; padding: 2rem; background: #111827; border-radius: 12px; border: 1px solid #1e293b; }
-    .login h2 { color: #00e5ff; margin-bottom: 1rem; }
-    .login input { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 14px; margin-bottom: 12px; }
-    .login input:focus { outline: none; border-color: #00e5ff; }
-    .login button { width: 100%; padding: 12px; background: #00e5ff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
-    .login button:hover { background: #00c8e0; }
-    .login .error { color: #ff5252; font-size: 13px; margin-bottom: 8px; display: none; }
-    .admin { display: none; max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
-    .admin h2 { color: #00e5ff; margin-bottom: 1.5rem; }
-    .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .tab { padding: 8px 16px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #94a3b8; cursor: pointer; font-size: 13px; }
-    .tab.active { background: #00e5ff; color: #000; border-color: #00e5ff; font-weight: 600; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; color: #94a3b8; font-size: 12px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 14px; font-family: inherit; }
-    .form-group textarea { min-height: 100px; resize: vertical; }
-    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #00e5ff; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn { padding: 10px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
-    .btn-save { background: #00e5ff; color: #000; }
-    .btn-save:hover { background: #00c8e0; }
-    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
-    .status { margin-top: 12px; font-size: 13px; padding: 8px 12px; border-radius: 8px; display: none; }
-    .status.ok { display: block; background: #064e3b; color: #6ee7b7; }
-    .status.err { display: block; background: #7f1d1d; color: #fca5a5; }
-    .section-page { display: none; }
-    .section-page.active { display: block; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .logout { color: #94a3b8; font-size: 13px; cursor: pointer; background: none; border: none; }
-    .logout:hover { color: #ff5252; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1a;color:#e0e0e0;min-height:100vh}
+    .login{max-width:360px;margin:15vh auto;padding:2rem;background:#111827;border-radius:12px;border:1px solid #1e293b}
+    .login h2{color:#00e5ff;margin-bottom:1rem}
+    .login input{width:100%;padding:12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#fff;font-size:14px;margin-bottom:12px}
+    .login input:focus{outline:none;border-color:#00e5ff}
+    .login button{width:100%;padding:12px;background:#00e5ff;color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
+    .login button:hover{background:#00c8e0}
+    .login .error{color:#ff5252;font-size:13px;margin-bottom:8px;display:none}
+    .admin{display:none;max-width:700px;margin:2rem auto;padding:0 1rem 4rem}
+    .admin h2{color:#00e5ff;margin-bottom:1.5rem}
+    .tabs{display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap}
+    .tab{padding:8px 16px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;cursor:pointer;font-size:13px}
+    .tab.active{background:#00e5ff;color:#000;border-color:#00e5ff;font-weight:600}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;color:#94a3b8;font-size:12px;text-transform:uppercase;margin-bottom:4px;letter-spacing:.5px}
+    .form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#fff;font-size:14px;font-family:inherit}
+    .form-group textarea{min-height:100px;resize:vertical}
+    .form-group input:focus,.form-group textarea:focus{outline:none;border-color:#00e5ff}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{padding:10px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
+    .btn-save{background:#00e5ff;color:#000}
+    .btn-save:hover{background:#00c8e0}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed}
+    .btn-add{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+    .btn-add:hover{border-color:#00e5ff;color:#00e5ff}
+    .btn-del{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:12px;padding:6px 12px}
+    .btn-del:hover{background:#991b1b}
+    .status{margin-top:12px;font-size:13px;padding:8px 12px;border-radius:8px;display:none}
+    .status.ok{display:block;background:#064e3b;color:#6ee7b7}
+    .status.err{display:block;background:#7f1d1d;color:#fca5a5}
+    .section-page{display:none}
+    .section-page.active{display:block}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+    .logout{color:#94a3b8;font-size:13px;cursor:pointer;background:none;border:none}
+    .logout:hover{color:#ff5252}
+    .card{background:#111827;padding:16px;border-radius:12px;border:1px solid #1e293b;margin-bottom:12px;position:relative}
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .card-header span{color:#94a3b8;font-size:12px}
+    /* Photo upload */
+    .photo-upload{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+    .photo-preview{width:80px;height:80px;border-radius:50%;border:2px solid #334155;overflow:hidden;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:32px;color:#334155}
+    .photo-preview img{width:100%;height:100%;object-fit:cover}
+    .photo-actions{display:flex;flex-direction:column;gap:8px}
+    .photo-actions label{display:inline-block;padding:8px 16px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;cursor:pointer;font-size:13px;text-align:center}
+    .photo-actions label:hover{border-color:#00e5ff;color:#00e5ff}
+    .photo-actions input[type=file]{display:none}
+    .photo-actions .upload-status{font-size:12px;color:#6ee7b7}
+    /* Icon picker */
+    .icon-picker-btn{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px}
+    .icon-picker-btn:hover{border-color:#00e5ff}
+    .icon-picker-btn .current-icon{font-size:24px}
+    .icon-picker-btn .change-text{color:#94a3b8;font-size:12px}
+    .icon-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;padding:8px;background:#0a0f1a;border:1px solid #334155;border-radius:8px;margin-top:8px;display:none}
+    .icon-grid.open{display:grid}
+    .icon-grid span{font-size:22px;padding:6px;text-align:center;cursor:pointer;border-radius:6px;border:1px solid transparent}
+    .icon-grid span:hover{background:#1e293b;border-color:#00e5ff}
+    .icon-grid span.selected{background:#00e5ff33;border-color:#00e5ff}
   </style>
 </head>
 <body>
 
   <div class="login" id="loginForm">
-    <h2>🔐 Админка</h2>
+    <h2>Админка</h2>
     <div class="error" id="loginError">Неверный пароль</div>
     <input type="password" id="password" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
     <button onclick="doLogin()">Войти</button>
@@ -50,19 +76,26 @@
 
   <div class="admin" id="adminPanel">
     <div class="header">
-      <h2>📝 Редактор сайта</h2>
+      <h2>Редактор сайта</h2>
       <button class="logout" onclick="doLogout()">Выйти</button>
     </div>
     <div class="tabs">
-      <div class="tab active" onclick="showTab('settings')">Главное</div>
-      <div class="tab" onclick="showTab('about')">Обо мне</div>
-      <div class="tab" onclick="showTab('services')">Услуги</div>
-      <div class="tab" onclick="showTab('portfolio')">Портфолио</div>
-      <div class="tab" onclick="showTab('contacts')">Контакты</div>
+      <div class="tab active" onclick="showTab('settings',this)">Главное</div>
+      <div class="tab" onclick="showTab('about',this)">Обо мне</div>
+      <div class="tab" onclick="showTab('services',this)">Услуги</div>
+      <div class="tab" onclick="showTab('portfolio',this)">Портфолио</div>
+      <div class="tab" onclick="showTab('contacts',this)">Контакты</div>
     </div>
 
     <!-- SETTINGS -->
     <div class="section-page active" id="page-settings">
+      <div class="photo-upload">
+        <div class="photo-preview" id="photoPreview">👤</div>
+        <div class="photo-actions">
+          <label>📷 Загрузить фото<input type="file" accept="image/*" onchange="uploadPhoto(this)"></label>
+          <div class="upload-status" id="photoStatus"></div>
+        </div>
+      </div>
       <div class="form-group">
         <label>Имя</label>
         <input id="s_name" placeholder="Николай Ромашкин">
@@ -74,10 +107,6 @@
       <div class="form-group">
         <label>Описание</label>
         <textarea id="s_tagline" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Путь к фото</label>
-        <input id="s_photo" placeholder="images/my-profile.jpg">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -98,19 +127,19 @@
         <textarea id="a_text" rows="8"></textarea>
       </div>
       <div id="a_stats"></div>
-      <button class="btn btn-save" style="margin-top:8px;background:#1e293b;color:#94a3b8;border:1px solid #334155" onclick="addStat()">+ Добавить статистику</button>
+      <button class="btn btn-add" style="margin-top:8px" onclick="addStat()">+ Добавить статистику</button>
     </div>
 
     <!-- SERVICES -->
     <div class="section-page" id="page-services">
       <div id="servicesList"></div>
-      <button class="btn btn-save" style="margin-top:8px;background:#1e293b;color:#94a3b8;border:1px solid #334155" onclick="addService()">+ Добавить услугу</button>
+      <button class="btn btn-add" style="margin-top:8px" onclick="addService()">+ Добавить услугу</button>
     </div>
 
     <!-- PORTFOLIO -->
     <div class="section-page" id="page-portfolio">
       <div id="portfolioList"></div>
-      <button class="btn btn-save" style="margin-top:8px;background:#1e293b;color:#94a3b8;border:1px solid #334155" onclick="addPortfolio()">+ Добавить проект</button>
+      <button class="btn btn-add" style="margin-top:8px" onclick="addPortfolio()">+ Добавить проект</button>
     </div>
 
     <!-- CONTACTS -->
@@ -136,15 +165,19 @@
     </div>
 
     <div style="margin-top:1.5rem;text-align:center">
-      <button class="btn btn-save" onclick="saveAll()">💾 Сохранить и опубликовать</button>
+      <button class="btn btn-save" onclick="saveAll()">Сохранить и опубликовать</button>
       <div class="status" id="saveStatus"></div>
     </div>
   </div>
 
   <script>
-    var TOKEN = '';
     var CMS_PASSWORD = '';
     var contentData = {};
+    var iconSets = {
+      tech: ['🤖','🌐','💻','⚡','🧠','🔧','📱','🖥','☁','🔒','📊','🎯','🚀','💡','⚙','🔗','📡','🛠','🎪','🏗'],
+      nature: ['🌍','🌎','🌏','🦘','🗼','🏯','🏛','🎬','🌮','🏙','🎪','🎭','🎨','📷','🏆','💎','🔮','🌈','⭐','🔥'],
+      misc: ['📁','✅','📌','🔑','💡','📢','📎','🏷','📌','🎖','🏅','📣','🔔','💬','📝','📋','🗂','📦','🏷','🔖']
+    };
 
     function doLogin() {
       CMS_PASSWORD = document.getElementById('password').value;
@@ -152,124 +185,241 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: CMS_PASSWORD, action: 'read' })
-      }).then(function(r) { return r.json(); }).then(function(data) {
-        if (data.error) {
-          document.getElementById('loginError').style.display = 'block';
-          return;
-        }
+      }).then(function(r){return r.json()}).then(function(data){
+        if (data.error) { document.getElementById('loginError').style.display='block'; return; }
         contentData = data;
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('loginForm').style.display='none';
+        document.getElementById('adminPanel').style.display='block';
         fillForms();
-      }).catch(function() {
-        document.getElementById('loginError').style.display = 'block';
-      });
+      }).catch(function(){ document.getElementById('loginError').style.display='block'; });
     }
 
     function doLogout() {
-      document.getElementById('loginForm').style.display = '';
-      document.getElementById('adminPanel').style.display = 'none';
-      document.getElementById('password').value = '';
-      CMS_PASSWORD = '';
+      document.getElementById('loginForm').style.display='';
+      document.getElementById('adminPanel').style.display='none';
+      document.getElementById('password').value='';
+      CMS_PASSWORD='';
     }
 
     function fillForms() {
       var s = contentData.settings || {};
-      document.getElementById('s_name').value = s.name || '';
-      document.getElementById('s_subtitle').value = s.subtitle || '';
-      document.getElementById('s_tagline').value = s.tagline || '';
-      document.getElementById('s_photo').value = s.photo || '';
-      document.getElementById('s_telegram').value = s.telegram || '';
-      document.getElementById('s_email').value = s.email || '';
+      document.getElementById('s_name').value = s.name||'';
+      document.getElementById('s_subtitle').value = s.subtitle||'';
+      document.getElementById('s_tagline').value = s.tagline||'';
+      document.getElementById('s_telegram').value = s.telegram||'';
+      document.getElementById('s_email').value = s.email||'';
+      updatePhotoPreview(s.photo||'');
 
       var a = contentData.about || {};
-      document.getElementById('a_text').value = a.text || '';
-      fillStats(a.stats || []);
+      document.getElementById('a_text').value = a.text||'';
+      fillStats(a.stats||[]);
 
-      document.getElementById('c_heading').value = (contentData.contacts || {}).heading || '';
-      document.getElementById('c_description').value = (contentData.contacts || {}).description || '';
-      document.getElementById('c_telegram').value = (contentData.contacts || {}).telegram || '';
-      document.getElementById('c_email').value = (contentData.contacts || {}).email || '';
+      document.getElementById('c_heading').value = (contentData.contacts||{}).heading||'';
+      document.getElementById('c_description').value = (contentData.contacts||{}).description||'';
+      document.getElementById('c_telegram').value = (contentData.contacts||{}).telegram||'';
+      document.getElementById('c_email').value = (contentData.contacts||{}).email||'';
 
-      fillServices(contentData.services || []);
-      fillPortfolio(contentData.portfolio || []);
+      fillServices(contentData.services||[]);
+      fillPortfolio(contentData.portfolio||[]);
     }
 
+    /* ===== PHOTO ===== */
+    function updatePhotoPreview(src) {
+      var el = document.getElementById('photoPreview');
+      if (src) { el.innerHTML = '<img src="'+esc(src)+'">'; }
+      else { el.innerHTML = '👤'; }
+    }
+
+    function uploadPhoto(input) {
+      var file = input.files[0];
+      if (!file) return;
+      var status = document.getElementById('photoStatus');
+      status.textContent = 'Загружаю...';
+      status.style.color = '#94a3b8';
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var b64 = e.target.result.split(',')[1];
+        var ext = file.name.split('.').pop();
+        var path = 'images/my-profile.' + ext;
+
+        fetch('/api/content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: CMS_PASSWORD, action: 'upload', path: path, content: b64 })
+        }).then(function(r){return r.json()}).then(function(d){
+          if (d.ok) {
+            contentData.settings = contentData.settings || {};
+            contentData.settings.photo = path;
+            document.getElementById('s_photo_path').value = path;
+            updatePhotoPreview(path);
+            status.textContent = '✅ Загружено!';
+            status.style.color = '#6ee7b7';
+          } else {
+            status.textContent = '❌ ' + (d.error||'Ошибка');
+            status.style.color = '#fca5a5';
+          }
+        }).catch(function(err){
+          status.textContent = '❌ Ошибка: ' + err.message;
+          status.style.color = '#fca5a5';
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /* ===== ICON PICKER ===== */
+    var activeIconPicker = null;
+
+    function toggleIconPicker(idx, type) {
+      var grid = document.getElementById('ig_' + type + '_' + idx);
+      if (!grid) return;
+      var isOpen = grid.classList.contains('open');
+      closeAllIconPickers();
+      if (!isOpen) grid.classList.add('open');
+    }
+
+    function closeAllIconPickers() {
+      document.querySelectorAll('.icon-grid').forEach(function(g){ g.classList.remove('open'); });
+    }
+
+    function pickIcon(idx, type, icon) {
+      var input = document.getElementById('icon_' + type + '_' + idx);
+      var preview = document.getElementById('iconprev_' + type + '_' + idx);
+      if (input) input.value = icon;
+      if (preview) preview.textContent = icon;
+      closeAllIconPickers();
+    }
+
+    function buildIconPicker(idx, type, currentIcon) {
+      var allIcons = iconSets.tech.concat(iconSets.nature).concat(iconSets.misc);
+      var unique = [];
+      var seen = {};
+      for (var i = 0; i < allIcons.length; i++) {
+        if (!seen[allIcons[i]]) { unique.push(allIcons[i]); seen[allIcons[i]] = true; }
+      }
+      var html = '<div class="icon-picker-btn" onclick="toggleIconPicker('+idx+',\''+type+'\')">'
+        + '<span class="current-icon" id="iconprev_'+type+'_'+idx+'">'+esc(currentIcon)+'</span>'
+        + '<span class="change-text">Нажми чтобы выбрать</span></div>'
+        + '<input type="hidden" id="icon_'+type+'_'+idx+'" value="'+esc(currentIcon)+'">'
+        + '<div class="icon-grid" id="ig_'+type+'_'+idx+'">';
+      for (var i = 0; i < unique.length; i++) {
+        html += '<span onclick="pickIcon('+idx+',\''+type+'\',\''+unique[i]+'\')">'+unique[i]+'</span>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    /* ===== STATS ===== */
     function fillStats(stats) {
       var el = document.getElementById('a_stats');
       el.innerHTML = '';
       for (var i = 0; i < stats.length; i++) {
-        el.innerHTML += '<div class="form-row" style="margin-bottom:8px">' +
-          '<div class="form-group"><label>Число</label><input class="stat-num" value="' + esc(stats[i].number) + '"></div>' +
-          '<div class="form-group"><label>Подпись</label><input class="stat-lbl" value="' + esc(stats[i].label) + '"></div>' +
-          '</div>';
+        addStatRow(stats[i].number, stats[i].label, i);
       }
+    }
+
+    function addStatRow(num, label, idx) {
+      var el = document.getElementById('a_stats');
+      var div = document.createElement('div');
+      div.className = 'form-row';
+      div.style.marginBottom = '8px';
+      div.innerHTML = '<div class="form-group"><label>Число</label><input class="stat-num" value="'+esc(num)+'"></div>'
+        + '<div class="form-group"><label>Подпись</label><div style="display:flex;gap:6px"><input class="stat-lbl" value="'+esc(label)+'" style="flex:1">'
+        + '<button class="btn btn-del" onclick="this.closest(\'.form-row\').remove()">Удалить</button></div></div>';
+      el.appendChild(div);
     }
 
     function addStat() {
-      var el = document.getElementById('a_stats');
-      el.innerHTML += '<div class="form-row" style="margin-bottom:8px">' +
-        '<div class="form-group"><label>Число</label><input class="stat-num" value=""></div>' +
-        '<div class="form-group"><label>Подпись</label><input class="stat-lbl" value=""></div>' +
-        '</div>';
+      var count = document.querySelectorAll('.stat-num').length;
+      addStatRow('', '', count);
     }
 
+    /* ===== SERVICES ===== */
     function fillServices(items) {
       var el = document.getElementById('servicesList');
       el.innerHTML = '';
-      for (var i = 0; i < items.length; i++) {
-        var s = items[i];
-        el.innerHTML += '<div style="background:#111827;padding:16px;border-radius:12px;border:1px solid #1e293b;margin-bottom:12px">' +
-          '<div class="form-group"><label>Иконка</label><input class="svc-icon" value="' + esc(s.icon) + '"></div>' +
-          '<div class="form-group"><label>Заголовок</label><input class="svc-title" value="' + esc(s.title) + '"></div>' +
-          '<div class="form-group"><label>Описание</label><textarea class="svc-desc" rows="2">' + esc(s.description) + '</textarea></div>' +
-          '<div class="form-group"><label>Теги (через запятую)</label><input class="svc-tags" value="' + esc((s.tags||[]).join(', ')) + '"></div>' +
-          '</div>';
-      }
+      for (var i = 0; i < items.length; i++) addServiceCard(items[i], i);
+    }
+
+    function addServiceCard(s, idx) {
+      var el = document.getElementById('servicesList');
+      var div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = '<div class="card-header"><span>Услуга '+(idx+1)+'</span>'
+        + '<button class="btn btn-del" onclick="removeService('+idx+')">Удалить</button></div>'
+        + '<div class="form-group"><label>Иконка</label>'
+        + buildIconPicker(idx, 'svc', s.icon||'🔧') + '</div>'
+        + '<div class="form-group"><label>Заголовок</label><input class="svc-title" value="'+esc(s.title)+'"></div>'
+        + '<div class="form-group"><label>Описание</label><textarea class="svc-desc" rows="2">'+esc(s.description)+'</textarea></div>'
+        + '<div class="form-group"><label>Теги (через запятую)</label><input class="svc-tags" value="'+esc((s.tags||[]).join(', '))+'"></div>';
+      el.appendChild(div);
     }
 
     function addService() {
       contentData.services = contentData.services || [];
-      contentData.services.push({ icon: '🔧', title: '', description: '', tags: [], order: contentData.services.length + 1 });
+      contentData.services.push({icon:'🔧',title:'',description:'',tags:[],order:contentData.services.length+1});
       fillServices(contentData.services);
     }
 
+    function removeService(idx) {
+      contentData.services.splice(idx, 1);
+      fillServices(contentData.services);
+    }
+
+    /* ===== PORTFOLIO ===== */
     function fillPortfolio(items) {
       var el = document.getElementById('portfolioList');
       el.innerHTML = '';
-      for (var i = 0; i < items.length; i++) {
-        var p = items[i];
-        el.innerHTML += '<div style="background:#111827;padding:16px;border-radius:12px;border:1px solid #1e293b;margin-bottom:12px">' +
-          '<div class="form-group"><label>Иконка</label><input class="pf-icon" value="' + esc(p.icon) + '"></div>' +
-          '<div class="form-group"><label>Заголовок</label><input class="pf-title" value="' + esc(p.title) + '"></div>' +
-          '<div class="form-group"><label>Описание</label><textarea class="pf-desc" rows="2">' + esc(p.description) + '</textarea></div>' +
-          '<div class="form-row">' +
-          '<div class="form-group"><label>Фон</label><select class="pf-bg"><option value="ai-bg"' + (p.bg_class==='ai-bg'?' selected':'') + '>AI</option><option value="web-bg"' + (p.bg_class==='web-bg'?' selected':'') + '>Web</option><option value="bot-bg"' + (p.bg_class==='bot-bg'?' selected':'') + '>Bot</option></select></div>' +
-          '<div class="form-group"><label>Ссылка</label><input class="pf-link" value="' + esc(p.link || '') + '"></div>' +
-          '</div></div>';
-      }
+      for (var i = 0; i < items.length; i++) addPortfolioCard(items[i], i);
+    }
+
+    function addPortfolioCard(p, idx) {
+      var el = document.getElementById('portfolioList');
+      var div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = '<div class="card-header"><span>Проект '+(idx+1)+'</span>'
+        + '<button class="btn btn-del" onclick="removePortfolio('+idx+')">Удалить</button></div>'
+        + '<div class="form-group"><label>Иконка</label>'
+        + buildIconPicker(idx, 'pf', p.icon||'📁') + '</div>'
+        + '<div class="form-group"><label>Заголовок</label><input class="pf-title" value="'+esc(p.title)+'"></div>'
+        + '<div class="form-group"><label>Описание</label><textarea class="pf-desc" rows="2">'+esc(p.description)+'</textarea></div>'
+        + '<div class="form-row">'
+        + '<div class="form-group"><label>Фон</label><select class="pf-bg">'
+        + '<option value="ai-bg"'+(p.bg_class==='ai-bg'?' selected':'')+'>AI</option>'
+        + '<option value="web-bg"'+(p.bg_class==='web-bg'?' selected':'')+'>Web</option>'
+        + '<option value="bot-bg"'+(p.bg_class==='bot-bg'?' selected':'')+'>Bot</option></select></div>'
+        + '<div class="form-group"><label>Ссылка</label><input class="pf-link" value="'+esc(p.link||'')+'"></div></div>';
+      el.appendChild(div);
     }
 
     function addPortfolio() {
       contentData.portfolio = contentData.portfolio || [];
-      contentData.portfolio.push({ icon: '📁', title: '', description: '', bg_class: 'ai-bg', link: '#', order: contentData.portfolio.length + 1 });
+      contentData.portfolio.push({icon:'📁',title:'',description:'',bg_class:'ai-bg',link:'#',order:contentData.portfolio.length+1});
       fillPortfolio(contentData.portfolio);
     }
 
-    function showTab(name) {
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.section-page').forEach(function(p) { p.classList.remove('active'); });
-      event.target.classList.add('active');
-      document.getElementById('page-' + name).classList.add('active');
+    function removePortfolio(idx) {
+      contentData.portfolio.splice(idx, 1);
+      fillPortfolio(contentData.portfolio);
     }
 
+    /* ===== TABS ===== */
+    function showTab(name, tabEl) {
+      document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+      document.querySelectorAll('.section-page').forEach(function(p){p.classList.remove('active')});
+      tabEl.classList.add('active');
+      document.getElementById('page-'+name).classList.add('active');
+      closeAllIconPickers();
+    }
+
+    /* ===== COLLECT DATA ===== */
     function collectData() {
       contentData.settings = {
         title: 'settings',
         name: document.getElementById('s_name').value,
         subtitle: document.getElementById('s_subtitle').value,
         tagline: document.getElementById('s_tagline').value,
-        photo: document.getElementById('s_photo').value,
+        photo: contentData.settings ? (contentData.settings.photo || 'images/my-profile.jpg') : 'images/my-profile.jpg',
         telegram: document.getElementById('s_telegram').value,
         email: document.getElementById('s_email').value
       };
@@ -278,11 +428,11 @@
       var lbls = document.querySelectorAll('.stat-lbl');
       var stats = [];
       for (var i = 0; i < nums.length; i++) {
-        if (nums[i].value || lbls[i].value) stats.push({ number: nums[i].value, label: lbls[i].value });
+        if (nums[i].value || lbls[i].value) stats.push({number:nums[i].value,label:lbls[i].value});
       }
-      contentData.about = { title: 'about', text: document.getElementById('a_text').value, stats: stats };
+      contentData.about = {title:'about',text:document.getElementById('a_text').value,stats:stats};
 
-      var svcIcons = document.querySelectorAll('.svc-icon');
+      var svcIcons = document.querySelectorAll('[id^="icon_svc_"]');
       var svcTitles = document.querySelectorAll('.svc-title');
       var svcDescs = document.querySelectorAll('.svc-desc');
       var svcTags = document.querySelectorAll('.svc-tags');
@@ -290,11 +440,11 @@
       for (var i = 0; i < svcTitles.length; i++) {
         contentData.services.push({
           icon: svcIcons[i].value, title: svcTitles[i].value, description: svcDescs[i].value,
-          tags: svcTags[i].value.split(',').map(function(t){return t.trim()}).filter(Boolean), order: i + 1
+          tags: svcTags[i].value.split(',').map(function(t){return t.trim()}).filter(Boolean), order: i+1
         });
       }
 
-      var pfIcons = document.querySelectorAll('.pf-icon');
+      var pfIcons = document.querySelectorAll('[id^="icon_pf_"]');
       var pfTitles = document.querySelectorAll('.pf-title');
       var pfDescs = document.querySelectorAll('.pf-desc');
       var pfBgs = document.querySelectorAll('.pf-bg');
@@ -303,46 +453,52 @@
       for (var i = 0; i < pfTitles.length; i++) {
         contentData.portfolio.push({
           icon: pfIcons[i].value, title: pfTitles[i].value, description: pfDescs[i].value,
-          bg_class: pfBgs[i].value, link: pfLinks[i].value, order: i + 1
+          bg_class: pfBgs[i].value, link: pfLinks[i].value, order: i+1
         });
       }
 
       contentData.contacts = {
-        title: 'contacts',
+        title:'contacts',
         heading: document.getElementById('c_heading').value,
         description: document.getElementById('c_description').value,
         telegram: document.getElementById('c_telegram').value,
-        telegram_url: 'https://t.me/' + document.getElementById('c_telegram').value.replace('@', ''),
+        telegram_url: 'https://t.me/' + document.getElementById('c_telegram').value.replace('@',''),
         email: document.getElementById('c_email').value
       };
     }
 
     function saveAll() {
       collectData();
-      var btn = event.target;
+      var btn = document.querySelector('.btn-save');
       btn.disabled = true;
-      btn.textContent = '⏳ Сохраняю...';
+      btn.textContent = 'Сохраняю...';
       document.getElementById('saveStatus').className = 'status';
 
       fetch('/api/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: CMS_PASSWORD, action: 'write', data: contentData })
-      }).then(function(r) { return r.json(); }).then(function(d) {
+      }).then(function(r){return r.json()}).then(function(d){
         btn.disabled = false;
-        btn.textContent = '💾 Сохранить и опубликовать';
+        btn.textContent = 'Сохранить и опубликовать';
         var st = document.getElementById('saveStatus');
-        if (d.ok) { st.className = 'status ok'; st.textContent = '✅ Опубликовано! Сайт обновится через 30 секунд.'; }
-        else { st.className = 'status err'; st.textContent = '❌ Ошибка: ' + (d.error || 'unknown'); }
-      }).catch(function(e) {
+        if (d.ok) { st.className='status ok'; st.textContent='Опубликовано! Сайт обновится через 30 секунд.'; }
+        else { st.className='status err'; st.textContent='Ошибка: '+(d.error||'unknown'); }
+      }).catch(function(e){
         btn.disabled = false;
-        btn.textContent = '💾 Сохранить и опубликовать';
+        btn.textContent = 'Сохранить и опубликовать';
         var st = document.getElementById('saveStatus');
-        st.className = 'status err'; st.textContent = '❌ Ошибка сети: ' + e.message;
+        st.className='status err'; st.textContent='Ошибка сети: '+e.message;
       });
     }
 
-    function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.icon-picker-btn') && !e.target.closest('.icon-grid')) {
+        closeAllIconPickers();
+      }
+    });
   </script>
 </body>
 </html>
