@@ -760,6 +760,7 @@ a { text-decoration: none; color: inherit; }
   height: 420px;
   cursor: grab;
   pointer-events: auto;
+  touch-action: none;
 }
 
 #globeCanvas:active {
@@ -773,6 +774,10 @@ a { text-decoration: none; color: inherit; }
     height: 280px;
     right: -60px;
     opacity: 0.4;
+  }
+  #globeCanvas {
+    width: 280px;
+    height: 280px;
   }
   .hero-content {
     flex-direction: column;
@@ -788,7 +793,33 @@ a { text-decoration: none; color: inherit; }
   .section { padding: 70px 20px; }
 }
 @media (max-width: 640px) {
-  .hero-globe-wrap { display: none; }
+  .hero {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 100px;
+  }
+  .hero-globe-wrap {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    opacity: 1;
+    pointer-events: auto;
+    flex-shrink: 0;
+  }
+  #globeCanvas {
+    width: 260px;
+    height: 260px;
+    cursor: grab;
+    pointer-events: auto;
+  }
+  .hero-content { gap: 0; }
   .nav-links { display: none; }
   .burger { display: flex; }
   .hero-text h1 { font-size: 1.8rem; }

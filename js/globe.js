@@ -3,13 +3,10 @@
   var canvas = document.getElementById('globeCanvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var S = 400;
-  canvas.width = S;
-  canvas.height = S;
-  canvas.style.width = S + 'px';
-  canvas.style.height = S + 'px';
 
-  var cx = S / 2, cy = S / 2, R = 150;
+  var S = canvas.width;
+  var R = Math.round(S * 0.375);
+  var cx = S / 2, cy = S / 2;
   var rotY = 0;
   var dragging = false, lastX;
   var autoRotate = true;
