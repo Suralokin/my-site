@@ -793,6 +793,7 @@ a { text-decoration: none; color: inherit; }
   .section { padding: 70px 20px; }
 }
 @media (max-width: 640px) {
+  html { scroll-behavior: auto; }
   .hero {
     flex-direction: column;
     justify-content: flex-start;
@@ -814,6 +815,7 @@ a { text-decoration: none; color: inherit; }
     opacity: 1;
     pointer-events: auto;
     flex-shrink: 0;
+    touch-action: none;
   }
   #globeCanvas {
     width: 260px;
