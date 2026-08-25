@@ -96,6 +96,8 @@
     var pixels = imgData.data;
     var scale = 2;
 
+    for (var i = 3; i < pixels.length; i += 4) pixels[i] = 0;
+
     var lx = -0.4, ly = -0.35, lz = 0.85;
     var lLen = Math.sqrt(lx*lx + ly*ly + lz*lz);
     lx /= lLen; ly /= lLen; lz /= lLen;
@@ -120,13 +122,12 @@
 
         var texX = ((lng + 180) / 360) * texW;
         texX = texX - Math.floor(texX / texW) * texW;
-        if (texX < 0) texX = 0;
-        if (texX >= texW) texX = texW - 1;
-        texX = Math.floor(texX);
+        texX = Math.max(0, Math.min(texW - 1, Math.floor(texX)));
         var texY = Math.floor(((90 - lat) / 180) * texH);
         texY = Math.max(0, Math.min(texH - 1, texY));
 
         var tIdx = (texY * texW + texX) * 4;
+        if (tIdx < 0 || tIdx + 2 >= texPixels.length) continue;
         var tr = texPixels[tIdx];
         var tg = texPixels[tIdx + 1];
         var tb = texPixels[tIdx + 2];
@@ -246,6 +247,8 @@
     ctx.clearRect(0, 0, W, H);
     time += 0.016;
     if (autoRotate && !dragging) rotY += autoSpeed;
+    while (rotY > Math.PI * 2) rotY -= Math.PI * 2;
+    while (rotY < 0) rotY += Math.PI * 2;
 
     drawTexturedSphere();
     drawLabels();
