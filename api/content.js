@@ -110,12 +110,10 @@ module.exports = async (req, res) => {
       }
       result.services.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-      const pfFiles = await listDir('content/portfolio');
-      result.portfolio = [];
-      for (const p of pfFiles) {
-        const data = await readFile('content/portfolio/' + p + '.json');
-        if (data) result.portfolio.push(data);
-      }
+      const pfData = await readFile('content/portfolio.json');
+      const allPf = Array.isArray(pfData) ? pfData : [];
+      const now = new Date().toISOString();
+      result.portfolio = allPf.filter(p => !p.publishAt || p.publishAt <= now);
       result.portfolio.sort((a, b) => (a.order || 0) - (b.order || 0));
 
       res.status(200).json(result);
@@ -158,27 +156,9 @@ module.exports = async (req, res) => {
         results.push(await writeFile('content/services/' + svcSlugs[i] + '.json', s));
       }
 
-      // Portfolio: sync files dynamically
-      const existingPf = await listDir('content/portfolio');
-      const newPf = data.portfolio || [];
-      const pfSlugs = newPf.map((p, i) => p.slug || slugify(p.title) || ('project-' + (i + 1)));
-
-      // Delete removed portfolio items
-      for (const old of existingPf) {
-        if (!pfSlugs.includes(old)) {
-          await githubRequest(`/repos/Suralokin/my-site/contents/content/portfolio/${old}.json`, 'DELETE', {
-            message: 'CMS: delete portfolio ' + old,
-            sha: (await githubRequest(`/repos/Suralokin/my-site/contents/content/portfolio/${old}.json`)).sha,
-            branch: 'main'
-          });
-        }
-      }
-
-      // Write each portfolio item
-      for (let i = 0; i < newPf.length; i++) {
-        const p = { ...newPf[i], slug: pfSlugs[i], order: i + 1 };
-        results.push(await writeFile('content/portfolio/' + pfSlugs[i] + '.json', p));
-      }
+      // Portfolio: single file with publishAt support
+      const newPf = (data.portfolio || []).map((p, i) => ({ ...p, order: i + 1 }));
+      results.push(await writeFile('content/portfolio.json', newPf));
 
       res.status(200).json({ ok: true, commits: results.length });
     } catch (e) {

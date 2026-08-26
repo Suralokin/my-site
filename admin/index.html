@@ -377,6 +377,7 @@
       var el = document.getElementById('portfolioList');
       var div = document.createElement('div');
       div.className = 'card';
+      var pubVal = p.publishAt ? p.publishAt.substring(0,16) : '';
       div.innerHTML = '<div class="card-header"><span>Проект '+(idx+1)+'</span>'
         + '<button class="btn btn-del" onclick="removePortfolio('+idx+')">Удалить</button></div>'
         + '<div class="form-group"><label>Иконка</label>'
@@ -388,7 +389,8 @@
         + '<option value="ai-bg"'+(p.bg_class==='ai-bg'?' selected':'')+'>AI</option>'
         + '<option value="web-bg"'+(p.bg_class==='web-bg'?' selected':'')+'>Web</option>'
         + '<option value="bot-bg"'+(p.bg_class==='bot-bg'?' selected':'')+'>Bot</option></select></div>'
-        + '<div class="form-group"><label>Ссылка</label><input class="pf-link" value="'+esc(p.link||'')+'"></div></div>';
+        + '<div class="form-group"><label>Ссылка на проект</label><input class="pf-link" value="'+esc(p.link||'')+'" placeholder="https://..."></div></div>'
+        + '<div class="form-group"><label>Публикация (пусто = сразу)</label><input type="datetime-local" class="pf-publish" value="'+pubVal+'"></div>';
       el.appendChild(div);
     }
 
@@ -449,12 +451,17 @@
       var pfDescs = document.querySelectorAll('.pf-desc');
       var pfBgs = document.querySelectorAll('.pf-bg');
       var pfLinks = document.querySelectorAll('.pf-link');
+      var pfPubs = document.querySelectorAll('.pf-publish');
       contentData.portfolio = [];
       for (var i = 0; i < pfTitles.length; i++) {
-        contentData.portfolio.push({
+        var item = {
           icon: pfIcons[i].value, title: pfTitles[i].value, description: pfDescs[i].value,
           bg_class: pfBgs[i].value, link: pfLinks[i].value, order: i+1
-        });
+        };
+        if (pfPubs[i] && pfPubs[i].value) {
+          item.publishAt = new Date(pfPubs[i].value).toISOString();
+        }
+        contentData.portfolio.push(item);
       }
 
       contentData.contacts = {

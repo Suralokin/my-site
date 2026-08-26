@@ -205,6 +205,14 @@
   margin-bottom: 28px;
 }
 
+/* ===== LOAD MORE ===== */
+.load-more-btn {
+  display: block;
+  margin: 40px auto 0;
+  padding: 14px 40px;
+  font-size: 1rem;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .portfolio-grid {

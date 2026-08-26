@@ -1,8 +1,0 @@
-{
-  "icon": "⚡",
-  "title": "AI-ассистент для Telegram",
-  "description": "Telegram-бот на базе GPT для автоматизации задач и консультаций.",
-  "bg_class": "bot-bg",
-  "link": "#",
-  "order": 3
-}
