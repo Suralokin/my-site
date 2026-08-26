@@ -1,5 +1,62 @@
 const https = require('https');
 
+/* ===== RATE LIMITER ===== */
+const rateLimits = {};
+const RATE_WINDOW = 60000;
+const RATE_MAX_READ = 30;
+const RATE_MAX_WRITE = 10;
+
+function getClientIP(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.headers['x-real-ip'] || 'unknown';
+}
+
+function checkRateLimit(ip, action) {
+  const now = Date.now();
+  if (!rateLimits[ip]) rateLimits[ip] = {};
+  const bucket = rateLimits[ip];
+  if (!bucket[action] || now - bucket[action].start > RATE_WINDOW) {
+    bucket[action] = { start: now, count: 1 };
+    return true;
+  }
+  const max = action === 'write' || action === 'upload' ? RATE_MAX_WRITE : RATE_MAX_READ;
+  if (bucket[action].count >= max) return false;
+  bucket[action].count++;
+  return true;
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const ip in rateLimits) {
+    for (const action in rateLimits[ip]) {
+      if (now - rateLimits[ip][action].start > RATE_WINDOW * 2) delete rateLimits[ip][action];
+    }
+    if (Object.keys(rateLimits[ip]).length === 0) delete rateLimits[ip];
+  }
+}, 120000);
+
+/* ===== INPUT SANITIZATION ===== */
+function sanitize(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[<>]/g, '').substring(0, 5000);
+}
+
+function sanitizeDeep(obj) {
+  if (typeof obj === 'string') return sanitize(obj);
+  if (Array.isArray(obj)) return obj.map(sanitizeDeep);
+  if (obj && typeof obj === 'object') {
+    const out = {};
+    for (const k in obj) {
+      if (k === '__proto__' || k === 'constructor') continue;
+      out[k] = sanitizeDeep(obj[k]);
+    }
+    return out;
+  }
+  return obj;
+}
+
+/* ===== LOGGING ===== */
+const blockedIPs = new Set();
+
 function githubRequest(path, method, body) {
   return new Promise((resolve, reject) => {
     const token = process.env.GITHUB_TOKEN;
@@ -68,26 +125,46 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
 
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
+
+  const ip = getClientIP(req);
+  if (blockedIPs.has(ip)) { res.status(429).json({ error: 'Blocked' }); return; }
+
+  const bodySize = JSON.stringify(req.body || {}).length;
+  if (bodySize > 50000) { res.status(413).json({ error: 'Payload too large' }); return; }
 
   const password = req.body.password;
   const CMS_PASSWORD = process.env.CMS_PASSWORD;
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
   if (!CMS_PASSWORD || !GITHUB_TOKEN) {
-    res.status(500).json({ error: 'Server not configured' });
-    return;
-  }
-
-  if (password !== CMS_PASSWORD && password !== '__public__') {
-    res.status(401).json({ error: 'Неверный пароль' });
-    return;
+    res.status(500).json({ error: 'Server not configured' }); return;
   }
 
   const action = req.body.action;
   const isPublic = password === '__public__';
+  const rateAction = action === 'read' ? 'read' : 'write';
+
+  if (!checkRateLimit(ip, rateAction)) {
+    res.setHeader('Retry-After', '60');
+    res.status(429).json({ error: 'Too many requests. Try again later.' }); return;
+  }
+
+  if (password !== CMS_PASSWORD && !isPublic) {
+    if (!checkRateLimit(ip, 'badpass')) {
+      blockedIPs.add(ip);
+      setTimeout(() => blockedIPs.delete(ip), 300000);
+    }
+    res.status(401).json({ error: 'Неверный пароль' }); return;
+  }
+
+  if (isPublic && action !== 'read') {
+    res.status(403).json({ error: 'Public access: read only' }); return;
+  }
 
   if (action === 'read') {
     try {
@@ -125,7 +202,7 @@ module.exports = async (req, res) => {
   /* ===== WRITE ===== */
   else if (action === 'write') {
     try {
-      const data = req.body.data;
+      const data = sanitizeDeep(req.body.data);
       const results = [];
 
       if (data.settings) results.push(await writeFile('content/settings.json', data.settings));
@@ -172,8 +249,13 @@ module.exports = async (req, res) => {
       const path = req.body.path;
       const content = req.body.content; // base64
       if (!path || !content) {
-        res.status(400).json({ error: 'Missing path or content' });
-        return;
+        res.status(400).json({ error: 'Missing path or content' }); return;
+      }
+      if (/\.\./.test(path) || !/^(images|content|uploads)\//.test(path)) {
+        res.status(403).json({ error: 'Invalid path' }); return;
+      }
+      if (content.length > 5000000) {
+        res.status(413).json({ error: 'File too large (max 5MB)' }); return;
       }
       const result = await writeFile(path, content, 'CMS: upload ' + path);
       res.status(200).json({ ok: true, path: path });
