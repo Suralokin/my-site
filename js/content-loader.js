@@ -148,7 +148,9 @@
       applyAbout(data.about);
       applyContacts(data.contacts);
       applyServices(data.services);
-      applyPortfolio(data.portfolio);
+      if (window.location.pathname.indexOf('portfolio.html') !== -1) {
+        applyPortfolio(data.portfolio);
+      }
     });
   }
 
