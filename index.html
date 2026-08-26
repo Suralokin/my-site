@@ -16,7 +16,7 @@
       <ul class="nav-links">
         <li><a href="#services">Услуги</a></li>
         <li><a href="#about">Обо мне</a></li>
-        <li><a href="#portfolio">Портфолио</a></li>
+        <li><a href="portfolio.html">Портфолио</a></li>
         <li><a href="#contacts">Контакты</a></li>
       </ul>
       <div class="burger" id="burger" onclick="toggleBurger()">
@@ -28,7 +28,7 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="#services" onclick="closeBurger()">Услуги</a>
     <a href="#about" onclick="closeBurger()">Обо мне</a>
-    <a href="#portfolio" onclick="closeBurger()">Портфолио</a>
+    <a href="portfolio.html" onclick="closeBurger()">Портфолио</a>
     <a href="#contacts" onclick="closeBurger()">Контакты</a>
   </div>
 
@@ -123,50 +123,6 @@
             <div class="stat-label">Ответственность</div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PORTFOLIO -->
-  <section class="section" id="portfolio">
-    <div class="section-container">
-      <div class="section-title animate-on-scroll">
-        <h2>Портфолио</h2>
-        <p>Примеры моих работ и проектов</p>
-        <div class="section-divider"></div>
-      </div>
-      <div class="slider-wrap">
-        <button class="slider-btn slider-prev" onclick="slidePortfolio(-1)">&#10094;</button>
-        <div class="slider-viewport">
-          <div class="slider-track" id="portfolioTrack">
-            <div class="portfolio-card active-slide">
-              <div class="portfolio-preview ai-bg">🧠</div>
-              <div class="portfolio-info">
-                <h3>AI Чат-бот для бизнеса</h3>
-                <p>Интеллектуальный чат-бот, автоматизирующий общение с клиентами и обработку заявок.</p>
-                <a href="#" class="portfolio-link">Подробнее &rarr;</a>
-              </div>
-            </div>
-            <div class="portfolio-card">
-              <div class="portfolio-preview web-bg">💻</div>
-              <div class="portfolio-info">
-                <h3>Корпоративный лендинг</h3>
-                <p>Современный одностраничный сайт с адаптивной вёрсткой и анимациями.</p>
-                <a href="portfolio.html" class="portfolio-link">Подробнее &rarr;</a>
-              </div>
-            </div>
-            <div class="portfolio-card">
-              <div class="portfolio-preview bot-bg">⚡</div>
-              <div class="portfolio-info">
-                <h3>AI-ассистент для Telegram</h3>
-                <p>Telegram-бот на базе GPT для автоматизации задач и консультаций.</p>
-                <a href="#" class="portfolio-link">Подробнее &rarr;</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button class="slider-btn slider-next" onclick="slidePortfolio(1)">&#10095;</button>
-        <div class="slider-dots" id="portfolioDots"></div>
       </div>
     </div>
   </section>
