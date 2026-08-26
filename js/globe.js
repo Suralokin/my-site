@@ -25,7 +25,7 @@
     texData = tc.getImageData(0, 0, texW, texH).data;
     texReady = true;
   };
-  texImg.src = 'images/earth-texture.jpg';
+  texImg.src = 'images/planet-texture.png';
 
   var countryLabels = [
     {lat:60,lng:40,name:'Россия',code:'RU'},
