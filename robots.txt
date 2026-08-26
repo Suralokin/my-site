@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /content/
+
+Sitemap: https://my-site-psi-bay.vercel.app/sitemap.xml
