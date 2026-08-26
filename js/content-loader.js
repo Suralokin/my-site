@@ -108,7 +108,7 @@
         + '<div class="portfolio-info">'
         + '<h3>' + esc(p.title) + '</h3>'
         + '<p>' + esc(p.description) + '</p>'
-        + '<a href="' + esc(p.link || '#') + '" class="portfolio-link">Подробнее &rarr;</a>'
+        + '<a href="' + esc(p.link || '#') + '" class="portfolio-link" target="_blank">Подробнее &rarr;</a>'
         + '</div></div>';
     }
     track.innerHTML = html;
@@ -140,63 +140,6 @@
     }
   }
 
-  /* ===== PORTFOLIO GRID (portfolio page) with pagination ===== */
-  var PORTFOLIO_PER_PAGE = 6;
-  var portfolioAllItems = [];
-  var portfolioShown = 0;
-
-  function applyPortfolioGrid(items) {
-    if (!items || !items.length) return;
-    items.sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
-    var grid = document.getElementById('portfolioGrid');
-    if (!grid) return;
-    portfolioAllItems = items;
-    portfolioShown = 0;
-    grid.innerHTML = '';
-    showMorePortfolio();
-  }
-
-  function showMorePortfolio() {
-    var grid = document.getElementById('portfolioGrid');
-    if (!grid) return;
-    var delays = ['delay-1','delay-2','delay-3'];
-    var end = Math.min(portfolioShown + PORTFOLIO_PER_PAGE, portfolioAllItems.length);
-    for (var i = portfolioShown; i < end; i++) {
-      var p = portfolioAllItems[i];
-      var link = p.link || '#';
-      var div = document.createElement('div');
-      div.className = 'work-card animate-on-scroll ' + delays[i % 3];
-      div.innerHTML = '<div class="work-card-preview ' + esc(p.bg_class || '') + '">'
-        + '<div class="work-card-emoji">' + (p.icon || '📁') + '</div>'
-        + '<div class="work-card-overlay">'
-        + '<a href="' + esc(link) + '" target="_blank" class="work-card-btn">Открыть проект &nearr;</a>'
-        + '</div></div>'
-        + '<div class="work-card-info">'
-        + '<span class="work-card-tag">' + esc(p.bg_class === 'ai-bg' ? 'AI' : p.bg_class === 'web-bg' ? 'Веб-сайт' : 'Проект') + '</span>'
-        + '<h3>' + esc(p.title || 'Без названия') + '</h3>'
-        + '<p>' + esc(p.description || '') + '</p>'
-        + '</div>';
-      grid.appendChild(div);
-      observer.observe(div);
-    }
-    portfolioShown = end;
-
-    var btn = document.getElementById('loadMoreBtn');
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.id = 'loadMoreBtn';
-      btn.className = 'btn btn-outline load-more-btn';
-      btn.onclick = function() { showMorePortfolio(); };
-      grid.parentNode.appendChild(btn);
-    }
-    if (portfolioShown >= portfolioAllItems.length) {
-      btn.style.display = 'none';
-    } else {
-      btn.style.display = '';
-      btn.textContent = 'Показать ещё (' + (portfolioAllItems.length - portfolioShown) + ')';
-    }
-  }
-
   /* ===== LOAD ALL ===== */
   function loadAll() {
     return fetchContent().then(function(data) {
@@ -206,7 +149,6 @@
       applyContacts(data.contacts);
       applyServices(data.services);
       applyPortfolio(data.portfolio);
-      applyPortfolioGrid(data.portfolio);
     });
   }
 

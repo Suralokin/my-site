@@ -44,10 +44,16 @@
     </div>
   </section>
 
-  <!-- PORTFOLIO GRID -->
+  <!-- PORTFOLIO SLIDER -->
   <section class="section" id="portfolio">
     <div class="section-container">
-      <div class="portfolio-grid" id="portfolioGrid">
+      <div class="slider-wrap">
+        <button class="slider-btn slider-prev" onclick="slidePortfolio(-1)">&#10094;</button>
+        <div class="slider-viewport">
+          <div class="slider-track" id="portfolioTrack"></div>
+        </div>
+        <button class="slider-btn slider-next" onclick="slidePortfolio(1)">&#10095;</button>
+        <div class="slider-dots" id="portfolioDots"></div>
       </div>
     </div>
   </section>
