@@ -703,6 +703,40 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(-2px);
 }
 
+/* ===== PORTFOLIO CTA CARD ===== */
+.portfolio-cta-card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.portfolio-cta-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--gradient-card);
+  border: 1px solid rgba(66,165,245,0.1);
+  border-radius: var(--radius);
+  padding: 32px;
+  transition: var(--transition);
+}
+.portfolio-cta-card-inner:hover {
+  border-color: rgba(0,229,255,0.3);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+.portfolio-cta-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+.portfolio-cta-text h3 {
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+}
+.portfolio-cta-text p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
 /* ===== FOOTER ===== */
 .footer {
   border-top: 1px solid rgba(66,165,245,0.08);
