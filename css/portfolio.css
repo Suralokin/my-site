@@ -100,6 +100,9 @@
   transform: scale(1.15) translateY(-6px);
 }
 
+.ai-bg { background: linear-gradient(135deg, #0d47a1, #4a148c); }
+.web-bg { background: linear-gradient(135deg, #004d40, #006064); }
+.bot-bg { background: linear-gradient(135deg, #1a237e, #0d47a1); }
 .gradient-bg-1 { background: linear-gradient(135deg, #0d47a1, #00838f); }
 .gradient-bg-2 { background: linear-gradient(135deg, #4a148c, #880e4f); }
 .gradient-bg-3 { background: linear-gradient(135deg, #e65100, #bf360c); }

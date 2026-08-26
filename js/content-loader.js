@@ -140,6 +140,33 @@
     }
   }
 
+  /* ===== PORTFOLIO GRID (portfolio page) ===== */
+  function applyPortfolioGrid(items) {
+    if (!items || !items.length) return;
+    items.sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
+    var grid = document.getElementById('portfolioGrid');
+    if (!grid) return;
+    var html = '';
+    var delays = ['delay-1','delay-2','delay-3'];
+    for (var i = 0; i < items.length; i++) {
+      var p = items[i];
+      var link = p.link || '#';
+      html += '<div class="work-card animate-on-scroll ' + delays[i % 3] + '">'
+        + '<div class="work-card-preview ' + esc(p.bg_class || '') + '">'
+        + '<div class="work-card-emoji">' + (p.icon || '📁') + '</div>'
+        + '<div class="work-card-overlay">'
+        + '<a href="' + esc(link) + '" target="_blank" class="work-card-btn">Открыть проект &nearr;</a>'
+        + '</div></div>'
+        + '<div class="work-card-info">'
+        + '<span class="work-card-tag">' + esc(p.bg_class === 'ai-bg' ? 'AI' : p.bg_class === 'web-bg' ? 'Веб-сайт' : 'Проект') + '</span>'
+        + '<h3>' + esc(p.title || 'Без названия') + '</h3>'
+        + '<p>' + esc(p.description || '') + '</p>'
+        + '</div></div>';
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.animate-on-scroll').forEach(function(el) { observer.observe(el); });
+  }
+
   /* ===== LOAD ALL ===== */
   function loadAll() {
     return fetchContent().then(function(data) {
@@ -149,6 +176,7 @@
       applyContacts(data.contacts);
       applyServices(data.services);
       applyPortfolio(data.portfolio);
+      applyPortfolioGrid(data.portfolio);
     });
   }
 
