@@ -1,9 +1,9 @@
 {
-  "icon": "✅",
-  "title": "Сайт Monitor your business on real-time dashboard",
-  "description": "Это  я делал на финальном этапе обучения в GeekBrains.  Также я продолжаю верстать лендинги и сайты и уже сделал несколько сайтов для клиентов.",
+  "icon": "📁",
+  "title": "Monitor your business on real-time dashboard",
+  "description": "Мой пример работы",
   "bg_class": "web-bg",
-  "link": "https://finish-project-psb3.vercel.app/  ",
+  "link": "#https://finish-project-psb3.vercel.app/",
   "order": 1,
   "slug": "monitor-your-business-on-real-time-dashb"
 }
