@@ -46,5 +46,29 @@
     "bg_class": "web-bg",
     "link": "https://healas-lt-tcfn.vercel.app/",
     "order": 6
+  },
+  {
+    "icon": "📁",
+    "title": "THE BRAND OF LUXERIOUS FASHION",
+    "description": "Это было 6 занятие в GeekBrains. Мы учились создавать одностраничный сайт.",
+    "bg_class": "web-bg",
+    "link": "https://lesson10-gb.vercel.app/",
+    "order": 7
+  },
+  {
+    "icon": "📁",
+    "title": "Я с тобой дружу сайт",
+    "description": "Сайт, который я делал по работе для клиентки.",
+    "bg_class": "web-bg",
+    "link": "https://ya-s-toboi-druhu.vercel.app/",
+    "order": 8
+  },
+  {
+    "icon": "📁",
+    "title": "Академия Золотое Сечение карты МАК",
+    "description": "Я делал одностраничный сайт для Академии Золотое Сечение. Для некой игры в МАК карты. Выбери одну карту и получи рекомендации на сегодняшний день.",
+    "bg_class": "web-bg",
+    "link": "https://academy-card.vercel.app/",
+    "order": 9
   }
 ]
