@@ -37,7 +37,7 @@
     .btn-move{background:#1e293b;color:#94a3b8;border:1px solid #334155;font-size:13px;padding:6px 11px;border-radius:6px}
     .btn-move:hover{border-color:#00e5ff;color:#00e5ff}
     .btn-move:disabled{opacity:.35;cursor:not-allowed;border-color:#334155;color:#334155}
-    .drag-handle{cursor:grab;color:#475569;font-size:16px;line-height:1;padding:4px 6px;border-radius:6px;user-select:none}
+    .drag-handle{cursor:grab;color:#475569;font-size:16px;line-height:1;padding:4px 6px;border-radius:6px;user-select:none;touch-action:none;-webkit-user-select:none;-webkit-touch-callout:none}
     .drag-handle:hover{color:#00e5ff;background:#1e293b}
     .card.dragging{opacity:.4;border-color:#00e5ff}
     .card.drag-over{border-color:#00e5ff;box-shadow:0 0 0 2px #00e5ff55}
@@ -386,7 +386,6 @@
       var el = document.getElementById('portfolioList');
       var div = document.createElement('div');
       div.className = 'card';
-      div.setAttribute('draggable','true');
       var pubVal = p.publishAt ? p.publishAt.substring(0,16) : '';
       div.innerHTML = '<div class="card-header"><span>Проект '+(idx+1)+'</span>'
         + '<div style="display:flex;gap:6px;align-items:center">'
@@ -406,32 +405,7 @@
         + '<div class="form-group"><label>Ссылка на проект</label><input class="pf-link" value="'+esc(p.link||'')+'" placeholder="https://..."></div></div>'
         + '<div class="form-group"><label>Публикация (пусто = сразу)</label><input type="datetime-local" class="pf-publish" value="'+pubVal+'"></div>';
 
-      div.addEventListener('dragstart', function(ev) {
-        if (!ev.target.closest('.drag-handle')) { ev.preventDefault(); return; }
-        dragFrom = idx;
-        div.classList.add('dragging');
-        ev.dataTransfer.effectAllowed = 'move';
-        try { ev.dataTransfer.setData('text/plain', String(idx)); } catch(e){}
-      });
-      div.addEventListener('dragend', function() {
-        div.classList.remove('dragging');
-        clearDragOver();
-      });
-      div.addEventListener('dragover', function(ev) {
-        if (dragFrom === null || dragFrom === idx) return;
-        ev.preventDefault();
-        ev.dataTransfer.dropEffect = 'move';
-        div.classList.add('drag-over');
-      });
-      div.addEventListener('dragleave', function() { div.classList.remove('drag-over'); });
-      div.addEventListener('drop', function(ev) {
-        ev.preventDefault();
-        div.classList.remove('drag-over');
-        if (dragFrom === null || dragFrom === idx) return;
-        movePortfolioTo(dragFrom, idx);
-        dragFrom = null;
-      });
-
+      setupPortfolioDrag(div, idx);
       el.appendChild(div);
     }
 
@@ -480,10 +454,65 @@
     }
 
     var dragFrom = null;
+    var dragTarget = null;
 
     function clearDragOver() {
       var cards = document.querySelectorAll('#portfolioList .drag-over');
       for (var i = 0; i < cards.length; i++) cards[i].classList.remove('drag-over');
+    }
+
+    function setupPortfolioDrag(card, idx) {
+      var handle = card.querySelector('.drag-handle');
+      if (idx === undefined || typeof idx !== 'number') return;
+      if (!handle) handle = card;
+      var sourceIdx = idx;
+      var dragging = false;
+
+      handle.addEventListener('pointerdown', function(ev) {
+        if (dragFrom !== null) return;
+        dragging = true;
+        dragFrom = sourceIdx;
+        dragTarget = card;
+        card.classList.add('dragging');
+        try { handle.setPointerCapture(ev.pointerId); } catch(e){}
+        ev.preventDefault();
+      });
+
+      handle.addEventListener('pointermove', function(ev) {
+        if (!dragging) return;
+        ev.preventDefault();
+        var el = document.elementFromPoint(ev.clientX, ev.clientY);
+        var over = el ? el.closest('#portfolioList .card') : null;
+        if (dragTarget && dragTarget !== over) dragTarget.classList.remove('drag-over');
+        if (over && over !== card) {
+          if (dragTarget !== over) over.classList.add('drag-over');
+          dragTarget = over;
+        } else {
+          dragTarget = card;
+        }
+      });
+
+      function finishDrag(ev) {
+        if (!dragging) return;
+        dragging = false;
+        ev.preventDefault();
+        var from = dragFrom;
+        var to = from;
+        if (dragTarget && dragTarget !== card) {
+          var cards = Array.prototype.slice.call(card.parentNode.children);
+          var ti = cards.indexOf(dragTarget);
+          if (ti !== -1) to = ti;
+        }
+        dragFrom = null;
+        dragTarget = null;
+        card.classList.remove('dragging');
+        try { handle.releasePointerCapture(ev.pointerId); } catch(e){}
+        clearDragOver();
+        if (to !== from) movePortfolioTo(from, to);
+      }
+
+      handle.addEventListener('pointerup', finishDrag);
+      handle.addEventListener('pointercancel', finishDrag);
     }
 
     function movePortfolioTo(from, to) {
