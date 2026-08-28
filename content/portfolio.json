@@ -30,5 +30,13 @@
     "bg_class": "bot-bg",
     "link": "#",
     "order": 4
+  },
+  {
+    "icon": "📁",
+    "title": "Многопрофильная клиника для детей и взрослых",
+    "description": "Сайт, который я создал. Таких проектов у меня несколько.",
+    "bg_class": "web-bg",
+    "link": "https://clinics-rosy.vercel.app/",
+    "order": 5
   }
 ]
