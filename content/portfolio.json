@@ -1,19 +1,11 @@
 [
   {
-    "icon": "📁",
-    "title": "Monitor your business on real-time dashboard",
-    "description": "Мой пример работы",
-    "bg_class": "web-bg",
-    "link": "https://finish-project-psb3.vercel.app/",
-    "order": 1
-  },
-  {
     "icon": "🧠",
     "title": "AI Чат-бот для бизнеса",
     "description": "Интеллектуальный чат-бот, автоматизирующий общение с клиентами и обработку заявок.",
     "bg_class": "ai-bg",
     "link": "#",
-    "order": 2
+    "order": 1
   },
   {
     "icon": "💻",
@@ -21,7 +13,7 @@
     "description": "Современный одностраничный сайт с адаптивной вёрсткой и анимациями.",
     "bg_class": "web-bg",
     "link": "#",
-    "order": 3
+    "order": 2
   },
   {
     "icon": "⚡",
@@ -29,6 +21,14 @@
     "description": "Telegram-бот на базе GPT для автоматизации задач и консультаций.",
     "bg_class": "bot-bg",
     "link": "#",
+    "order": 3
+  },
+  {
+    "icon": "📁",
+    "title": "Monitor your business on real-time dashboard",
+    "description": "Мой пример работы",
+    "bg_class": "web-bg",
+    "link": "https://finish-project-psb3.vercel.app/",
     "order": 4
   },
   {
