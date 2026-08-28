@@ -34,6 +34,9 @@
     .btn-add:hover{border-color:#00e5ff;color:#00e5ff}
     .btn-del{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;font-size:12px;padding:6px 12px}
     .btn-del:hover{background:#991b1b}
+    .btn-move{background:#1e293b;color:#94a3b8;border:1px solid #334155;font-size:13px;padding:6px 11px;border-radius:6px}
+    .btn-move:hover{border-color:#00e5ff;color:#00e5ff}
+    .btn-move:disabled{opacity:.35;cursor:not-allowed;border-color:#334155;color:#334155}
     .status{margin-top:12px;font-size:13px;padding:8px 12px;border-radius:8px;display:none}
     .status.ok{display:block;background:#064e3b;color:#6ee7b7}
     .status.err{display:block;background:#7f1d1d;color:#fca5a5}
@@ -371,16 +374,20 @@
     function fillPortfolio(items) {
       var el = document.getElementById('portfolioList');
       el.innerHTML = '';
-      for (var i = 0; i < items.length; i++) addPortfolioCard(items[i], i);
+      for (var i = 0; i < items.length; i++) addPortfolioCard(items, i);
     }
 
-    function addPortfolioCard(p, idx) {
+    function addPortfolioCard(items, idx) {
+      var p = items[idx];
       var el = document.getElementById('portfolioList');
       var div = document.createElement('div');
       div.className = 'card';
       var pubVal = p.publishAt ? p.publishAt.substring(0,16) : '';
       div.innerHTML = '<div class="card-header"><span>Проект '+(idx+1)+'</span>'
-        + '<button class="btn btn-del" onclick="removePortfolio('+idx+')">Удалить</button></div>'
+        + '<div style="display:flex;gap:6px;align-items:center">'
+        + '<button class="btn btn-move" title="Переместить влево" onclick="movePortfolio('+idx+',-1)"'+(idx===0?' disabled':'')+'>◀</button>'
+        + '<button class="btn btn-move" title="Переместить вправо" onclick="movePortfolio('+idx+',1)"'+(idx===items.length-1?' disabled':'')+'>▶</button>'
+        + '<button class="btn btn-del" onclick="removePortfolio('+idx+')">Удалить</button></div></div>'
         + '<div class="form-group"><label>Иконка</label>'
         + buildIconPicker(idx, 'pf', p.icon||'📁') + '</div>'
         + '<div class="form-group"><label>Заголовок</label><input class="pf-title" value="'+esc(p.title)+'"></div>'
@@ -396,14 +403,47 @@
     }
 
     function addPortfolio() {
-      contentData.portfolio = contentData.portfolio || [];
-      contentData.portfolio.push({icon:'📁',title:'',description:'',bg_class:'ai-bg',link:'#',order:contentData.portfolio.length+1});
-      fillPortfolio(contentData.portfolio);
+      var arr = collectPortfolio();
+      arr.push({icon:'📁',title:'',description:'',bg_class:'ai-bg',link:'#',order:arr.length+1});
+      contentData.portfolio = arr;
+      fillPortfolio(arr);
     }
 
     function removePortfolio(idx) {
-      contentData.portfolio.splice(idx, 1);
-      fillPortfolio(contentData.portfolio);
+      var arr = collectPortfolio();
+      arr.splice(idx, 1);
+      contentData.portfolio = arr;
+      fillPortfolio(arr);
+    }
+
+    function collectPortfolio() {
+      var pfIcons = document.querySelectorAll('#portfolioList [id^="icon_pf_"]');
+      var pfTitles = document.querySelectorAll('#portfolioList .pf-title');
+      var pfDescs = document.querySelectorAll('#portfolioList .pf-desc');
+      var pfBgs = document.querySelectorAll('#portfolioList .pf-bg');
+      var pfLinks = document.querySelectorAll('#portfolioList .pf-link');
+      var pfPubs = document.querySelectorAll('#portfolioList .pf-publish');
+      var arr = [];
+      for (var i = 0; i < pfTitles.length; i++) {
+        var item = {
+          icon: pfIcons[i].value, title: pfTitles[i].value, description: pfDescs[i].value,
+          bg_class: pfBgs[i].value, link: pfLinks[i].value, order: i + 1
+        };
+        if (pfPubs[i] && pfPubs[i].value) item.publishAt = new Date(pfPubs[i].value).toISOString();
+        arr.push(item);
+      }
+      contentData.portfolio = arr;
+      return arr;
+    }
+
+    function movePortfolio(idx, delta) {
+      var arr = collectPortfolio();
+      var to = idx + delta;
+      if (to < 0 || to >= arr.length) return;
+      var tmp = arr[idx]; arr[idx] = arr[to]; arr[to] = tmp;
+      for (var i = 0; i < arr.length; i++) arr[i].order = i + 1;
+      contentData.portfolio = arr;
+      fillPortfolio(arr);
     }
 
     /* ===== TABS ===== */
