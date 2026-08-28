@@ -38,5 +38,13 @@
     "bg_class": "web-bg",
     "link": "https://clinics-rosy.vercel.app/",
     "order": 5
+  },
+  {
+    "icon": "📁",
+    "title": "HEALAS.LT",
+    "description": "Одностраничник. Лендинг, который я создал.",
+    "bg_class": "web-bg",
+    "link": "https://healas-lt-tcfn.vercel.app/",
+    "order": 6
   }
 ]
