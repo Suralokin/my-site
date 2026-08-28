@@ -4,6 +4,19 @@ window.addEventListener('scroll', () => {
   navbar.classList.toggle('scrolled', window.scrollY > 60);
 });
 
+/* ===== SCROLL TO TOP BUTTON ===== */
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  if (scrollTopBtn) {
+    scrollTopBtn.classList.toggle('show', window.scrollY > 400);
+  }
+});
+if (scrollTopBtn) {
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
 /* ===== BURGER ===== */
 function toggleBurger() {
   document.getElementById('burger').classList.toggle('active');

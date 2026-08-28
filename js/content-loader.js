@@ -103,12 +103,26 @@
     var html = '';
     for (var i = 0; i < items.length; i++) {
       var p = items[i];
+      var link = p.link || '';
+      var isSamePage = false;
+      if (link) {
+        var last = link.split('/').pop();
+        if (last === 'portfolio.html' || last === location.pathname.split('/').pop() || link === location.href || link === location.pathname) {
+          isSamePage = true;
+        }
+      }
+      var linkHtml;
+      if (isSamePage) {
+        linkHtml = '<span class="portfolio-link disabled">Подробнее &rarr;</span>';
+      } else {
+        linkHtml = '<a href="' + esc(link) + '" class="portfolio-link" target="_blank">Подробнее &rarr;</a>';
+      }
       html += '<div class="portfolio-card' + (i === 0 ? ' active-slide' : '') + '">'
         + '<div class="portfolio-preview ' + (p.bg_class || '') + '">' + (p.icon || '📁') + '</div>'
         + '<div class="portfolio-info">'
         + '<h3>' + esc(p.title) + '</h3>'
         + '<p>' + esc(p.description) + '</p>'
-        + '<a href="' + esc(p.link || '#') + '" class="portfolio-link" target="_blank">Подробнее &rarr;</a>'
+        + linkHtml
         + '</div></div>';
     }
     track.innerHTML = html;
