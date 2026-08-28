@@ -37,6 +37,10 @@
     .btn-move{background:#1e293b;color:#94a3b8;border:1px solid #334155;font-size:13px;padding:6px 11px;border-radius:6px}
     .btn-move:hover{border-color:#00e5ff;color:#00e5ff}
     .btn-move:disabled{opacity:.35;cursor:not-allowed;border-color:#334155;color:#334155}
+    .drag-handle{cursor:grab;color:#475569;font-size:16px;line-height:1;padding:4px 6px;border-radius:6px;user-select:none}
+    .drag-handle:hover{color:#00e5ff;background:#1e293b}
+    .card.dragging{opacity:.4;border-color:#00e5ff}
+    .card.drag-over{border-color:#00e5ff;box-shadow:0 0 0 2px #00e5ff55}
     .status{margin-top:12px;font-size:13px;padding:8px 12px;border-radius:8px;display:none}
     .status.ok{display:block;background:#064e3b;color:#6ee7b7}
     .status.err{display:block;background:#7f1d1d;color:#fca5a5}
@@ -382,9 +386,11 @@
       var el = document.getElementById('portfolioList');
       var div = document.createElement('div');
       div.className = 'card';
+      div.setAttribute('draggable','true');
       var pubVal = p.publishAt ? p.publishAt.substring(0,16) : '';
       div.innerHTML = '<div class="card-header"><span>Проект '+(idx+1)+'</span>'
         + '<div style="display:flex;gap:6px;align-items:center">'
+        + '<span class="drag-handle" title="Перетащите, чтобы поменять карточки местами">⠿</span>'
         + '<button class="btn btn-move" title="Переместить влево" onclick="movePortfolio('+idx+',-1)"'+(idx===0?' disabled':'')+'>◀</button>'
         + '<button class="btn btn-move" title="Переместить вправо" onclick="movePortfolio('+idx+',1)"'+(idx===items.length-1?' disabled':'')+'>▶</button>'
         + '<button class="btn btn-del" onclick="removePortfolio('+idx+')">Удалить</button></div></div>'
@@ -399,6 +405,33 @@
         + '<option value="bot-bg"'+(p.bg_class==='bot-bg'?' selected':'')+'>Bot</option></select></div>'
         + '<div class="form-group"><label>Ссылка на проект</label><input class="pf-link" value="'+esc(p.link||'')+'" placeholder="https://..."></div></div>'
         + '<div class="form-group"><label>Публикация (пусто = сразу)</label><input type="datetime-local" class="pf-publish" value="'+pubVal+'"></div>';
+
+      div.addEventListener('dragstart', function(ev) {
+        if (!ev.target.closest('.drag-handle')) { ev.preventDefault(); return; }
+        dragFrom = idx;
+        div.classList.add('dragging');
+        ev.dataTransfer.effectAllowed = 'move';
+        try { ev.dataTransfer.setData('text/plain', String(idx)); } catch(e){}
+      });
+      div.addEventListener('dragend', function() {
+        div.classList.remove('dragging');
+        clearDragOver();
+      });
+      div.addEventListener('dragover', function(ev) {
+        if (dragFrom === null || dragFrom === idx) return;
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = 'move';
+        div.classList.add('drag-over');
+      });
+      div.addEventListener('dragleave', function() { div.classList.remove('drag-over'); });
+      div.addEventListener('drop', function(ev) {
+        ev.preventDefault();
+        div.classList.remove('drag-over');
+        if (dragFrom === null || dragFrom === idx) return;
+        movePortfolioTo(dragFrom, idx);
+        dragFrom = null;
+      });
+
       el.appendChild(div);
     }
 
@@ -441,6 +474,23 @@
       var to = idx + delta;
       if (to < 0 || to >= arr.length) return;
       var tmp = arr[idx]; arr[idx] = arr[to]; arr[to] = tmp;
+      for (var i = 0; i < arr.length; i++) arr[i].order = i + 1;
+      contentData.portfolio = arr;
+      fillPortfolio(arr);
+    }
+
+    var dragFrom = null;
+
+    function clearDragOver() {
+      var cards = document.querySelectorAll('#portfolioList .drag-over');
+      for (var i = 0; i < cards.length; i++) cards[i].classList.remove('drag-over');
+    }
+
+    function movePortfolioTo(from, to) {
+      var arr = collectPortfolio();
+      var item = arr.splice(from, 1)[0];
+      if (!item) return;
+      arr.splice(to, 0, item);
       for (var i = 0; i < arr.length; i++) arr[i].order = i + 1;
       contentData.portfolio = arr;
       fillPortfolio(arr);
