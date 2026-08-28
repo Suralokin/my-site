@@ -104,8 +104,8 @@
     for (var i = 0; i < items.length; i++) {
       var p = items[i];
       var link = p.link || '';
-      var isSamePage = false;
-      if (link) {
+      var isSamePage = !link || link === '#' || link.indexOf('#') === 0;
+      if (link && link.indexOf('#') !== 0) {
         var last = link.split('/').pop();
         if (last === 'portfolio.html' || last === location.pathname.split('/').pop() || link === location.href || link === location.pathname) {
           isSamePage = true;

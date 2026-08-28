@@ -8,7 +8,7 @@ window.addEventListener('scroll', () => {
 const scrollTopBtn = document.getElementById('scrollTop');
 window.addEventListener('scroll', () => {
   if (scrollTopBtn) {
-    scrollTopBtn.classList.toggle('show', window.scrollY > 400);
+    scrollTopBtn.classList.toggle('show', window.scrollY > 120);
   }
 });
 if (scrollTopBtn) {
