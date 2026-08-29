@@ -1,26 +1,29 @@
 /* ===== 3D EARTH GLOBE — PIXEL SPHERE (PERFORMANCE-OPTIMIZED) =====
-   Оптимизация под мобильные устройства:
-   1) Текстурированная сфера рисуется в отдельный (off-screen) буфер
-      пониженного разрешения и масштабируется на видимый canvas. Это
-      резко снижает число обрабатываемых пикселей и нагрузку на CPU
-      телефона (например, Samsung Galaxy A36), ускоряя загрузку и
-      устраняя «тормоза».
-   2) Автоповорот идёт с пониженной частотой кадров, когда не active.
+   Оптимизация под мобильные устройства БЕЗ уменьшения глобуса:
+   1) Геометрия сферы (размер, положение, R) полностью совпадает с
+      оригиналом: S = canvas.width, R = 0.375*S, центр в (S/2, S/2).
+   2) Тяжёлая «попиксельная» заливка текстуры идёт в отдельный off-screen
+      буфер пониженного разрешения, затем результат просто растягивается
+      браузером ровно на ту же окружность сферы (cx-R, cy-R, R*2, R*2).
+      Это сокращает объём вычислений в 3–4 раза, но размер глобуса и
+      положение подписей/флагов/атмосферы не меняются.
+   3) Автоповорот прореживается (на телефоне каждый 2-й кадр), пока
+      пользователь не крутит глобус — тогда рендер идёт на каждом кадре.
 */
 (function() {
   var canvas = document.getElementById('globeCanvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
 
-  /* Реальный (CSS) размер сферы = ширина canvas в layout-пикселях.
-     Сначала используем атрибут, потом подстраиваемся под отображение. */
-  var CSS_W = canvas.clientWidth || canvas.width;
-  var S = CSS_W;                       // видимый размер canvas (лог. px)
+  /* Размер сферы = внутренний битмап canvas (canvas.width из HTML = 420).
+     CSS лишь масштабирует отображение; рисуем всегда в координатах битмапа,
+     поэтому глобус не меняет размер и всё чётко выравнивается. */
+  var S = canvas.width;
   var R = Math.round(S * 0.375);
   var cx = S / 2, cy = S / 2;
 
-  /* Коэффициент понижения разрешения буфера сферы.
-     Меньше = быстрее (но чуть менее чётко). На телефоне сильнее режем. */
+  /* Коэффициент понижения РАЗРЕШЕНИЯ буфера сферы (не размера!).
+     На телефоне сильнее режем, чтобы снизить нагрузку на CPU. */
   var isMobile = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
   var SCALE = isMobile ? 0.55 : 0.78;
 
@@ -30,7 +33,7 @@
   var time = 0;
   var touchStartX = 0, touchStartY = 0, touchIsDrag = false, touchLocked = false;
 
-  /* ==== off-screen буфер сферы ==== */
+  /* ==== off-screen буфер сферы (пониженное разрешение) ==== */
   var g = document.createElement('canvas');
   var gB = Math.max(2, Math.round(S * SCALE));
   g.width = gB; g.height = gB;
@@ -102,13 +105,17 @@
     return { x: x1, y: y1, z: z2 };
   }
 
-  /* ===== RENDER TEXTURED SPHERE (в пониженном разрешении) ===== */
+  /* ===== RENDER TEXTURED SPHERE =====
+     Рисуем сферу в пониженном разрешении (буфер g), затем растягиваем
+     результат ровно на окружность (cx-R, cy-R, R*2, R*2) основного
+     canvas. Размер и положение глобуса не меняются. */
   function renderSphere() {
     if (!texReady) {
       gctx.beginPath();
       gctx.arc(gcx, gcy, gR, 0, Math.PI * 2);
       gctx.fillStyle = '#061428';
       gctx.fill();
+      ctx.drawImage(g, 0, 0, gB, gB, cx - R, cy - R, R * 2, R * 2);
       return;
     }
 
@@ -160,7 +167,6 @@
     }
     gctx.putImageData(imgData, 0, 0);
 
-    /* Масштабируем буфер на видимый canvas */
     ctx.drawImage(g, 0, 0, gB, gB, cx - R, cy - R, R * 2, R * 2);
   }
 
@@ -222,19 +228,19 @@
 
   /* ===== ATMOSPHERE ===== */
   function drawAtmosphere() {
-    var g1 = ctx.createRadialGradient(cx, cy, R - 1, cx, cy, R + 18);
-    g1.addColorStop(0, 'rgba(66,165,245,0)');
-    g1.addColorStop(0.8, 'rgba(0,229,255,0.05)');
-    g1.addColorStop(1, 'rgba(0,229,255,0)');
+    var a1 = ctx.createRadialGradient(cx, cy, R - 1, cx, cy, R + 18);
+    a1.addColorStop(0, 'rgba(66,165,245,0)');
+    a1.addColorStop(0.8, 'rgba(0,229,255,0.05)');
+    a1.addColorStop(1, 'rgba(0,229,255,0)');
     ctx.beginPath(); ctx.arc(cx, cy, R + 18, 0, Math.PI * 2);
-    ctx.fillStyle = g1; ctx.fill();
+    ctx.fillStyle = a1; ctx.fill();
 
     var p = Math.sin(time * 0.8) * 0.02 + 0.035;
-    var g2 = ctx.createRadialGradient(cx, cy, R + 2, cx, cy, R + 35);
-    g2.addColorStop(0, 'rgba(100,181,246,' + p + ')');
-    g2.addColorStop(1, 'rgba(0,229,255,0)');
+    var a2 = ctx.createRadialGradient(cx, cy, R + 2, cx, cy, R + 35);
+    a2.addColorStop(0, 'rgba(100,181,246,' + p + ')');
+    a2.addColorStop(1, 'rgba(0,229,255,0)');
     ctx.beginPath(); ctx.arc(cx, cy, R + 35, 0, Math.PI * 2);
-    ctx.fillStyle = g2; ctx.fill();
+    ctx.fillStyle = a2; ctx.fill();
   }
 
   /* ===== BORDER ===== */
@@ -246,7 +252,7 @@
 
   /* ===== LOOP (пониженная частота при автоповороте) ===== */
   var frame = 0;
-  var frameSkip = 1;             // рисовать каждые N кадров
+  var frameSkip = isMobile ? 2 : 1;
   function render() {
     frame++;
     time += 0.016;
@@ -254,7 +260,7 @@
     if (rotY > 6.28318) rotY -= 6.28318;
     if (rotY < 0) rotY += 6.28318;
 
-    /* Пока не тянем мышью/пальцем — можно прореживать кадры */
+    /* Пока не крутим пальцем/мышью — можно прореживать кадры */
     if (frame % frameSkip === 0) {
       ctx.clearRect(0, 0, S, S);
       renderSphere();
@@ -266,14 +272,8 @@
   }
 
   /* ===== MOUSE ===== */
-  function startDrag() { dragging = true; autoRotate = false; frameSkip = 1; }
-  function endDrag() {
-    dragging = false;
-    frameSkip = isMobile ? 2 : 1;
-    setTimeout(function() { autoRotate = true; }, 2000);
-  }
   canvas.addEventListener('mousedown', function(e) {
-    startDrag(); lastX = e.clientX; lastY = e.clientY;
+    dragging = true; lastX = e.clientX; lastY = e.clientY; autoRotate = false; frameSkip = 1;
   });
   window.addEventListener('mousemove', function(e) {
     if (!dragging) return;
@@ -282,7 +282,9 @@
     rotX = Math.max(-1.2, Math.min(1.2, rotX));
     lastX = e.clientX; lastY = e.clientY;
   });
-  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('mouseup', function() {
+    if (dragging) { dragging = false; frameSkip = isMobile ? 2 : 1; setTimeout(function() { autoRotate = true; }, 2000); }
+  });
 
   /* ===== TOUCH =====
      IMPORTANT: we must NOT block vertical page scrolling.
@@ -294,7 +296,7 @@
     touchStartY = e.touches[0].clientY;
     touchIsDrag = false;
     touchLocked = false;
-    startDrag();
+    dragging = true; autoRotate = false; frameSkip = 1;
   }, { passive: true });
 
   canvas.addEventListener('touchmove', function(e) {
@@ -305,18 +307,23 @@
     var dy = my - touchStartY;
 
     if (!touchIsDrag) {
+      // Decide: if finger moved mostly HORIZONTALLY -> this is a globe drag.
+      // If it moved mostly VERTICALLY (or too little) -> let the page scroll.
       if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
         touchIsDrag = true;
       } else if (Math.abs(dy) > 12) {
+        // Vertical intent -> lock scroll and give the browser control
         touchLocked = true;
         touchIsDrag = false;
         return;
       } else {
-        return;
+        return; // still too early to decide
       }
     }
 
     e.preventDefault();
+    dragging = true;
+    autoRotate = false;
     rotY += dx * 0.006;
     rotX += dy * 0.006;
     rotX = Math.max(-1.2, Math.min(1.2, rotX));
@@ -324,8 +331,9 @@
     touchStartY = my;
   }, { passive: false });
 
-  canvas.addEventListener('touchend', function() { endDrag(); });
+  canvas.addEventListener('touchend', function() {
+    if (dragging) { dragging = false; frameSkip = isMobile ? 2 : 1; setTimeout(function() { autoRotate = true; }, 2000); }
+  });
 
-  frameSkip = isMobile ? 2 : 1;
   render();
 })();
