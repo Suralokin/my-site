@@ -906,14 +906,14 @@ a { text-decoration: none; color: inherit; }
     opacity: 1;
     pointer-events: auto;
     flex-shrink: 0;
-    touch-action: none;
+    touch-action: pan-y;
   }
   #globeCanvas {
     width: 260px;
     height: 260px;
     cursor: grab;
     pointer-events: auto;
-    touch-action: none;
+    touch-action: pan-y;
   }
   .hero-content { gap: 0; }
   .nav-links { display: none; }

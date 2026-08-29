@@ -1,16 +1,42 @@
-/* ===== 3D EARTH GLOBE — PIXEL SPHERE ===== */
+/* ===== 3D EARTH GLOBE — PIXEL SPHERE (PERFORMANCE-OPTIMIZED) =====
+   Оптимизация под мобильные устройства:
+   1) Текстурированная сфера рисуется в отдельный (off-screen) буфер
+      пониженного разрешения и масштабируется на видимый canvas. Это
+      резко снижает число обрабатываемых пикселей и нагрузку на CPU
+      телефона (например, Samsung Galaxy A36), ускоряя загрузку и
+      устраняя «тормоза».
+   2) Автоповорот идёт с пониженной частотой кадров, когда не active.
+*/
 (function() {
   var canvas = document.getElementById('globeCanvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var S = canvas.width;
+
+  /* Реальный (CSS) размер сферы = ширина canvas в layout-пикселях.
+     Сначала используем атрибут, потом подстраиваемся под отображение. */
+  var CSS_W = canvas.clientWidth || canvas.width;
+  var S = CSS_W;                       // видимый размер canvas (лог. px)
   var R = Math.round(S * 0.375);
   var cx = S / 2, cy = S / 2;
+
+  /* Коэффициент понижения разрешения буфера сферы.
+     Меньше = быстрее (но чуть менее чётко). На телефоне сильнее режем. */
+  var isMobile = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+  var SCALE = isMobile ? 0.55 : 0.78;
 
   var rotY = 0.3, rotX = -0.25;
   var dragging = false, lastX, lastY;
   var autoRotate = true;
   var time = 0;
+  var touchStartX = 0, touchStartY = 0, touchIsDrag = false, touchLocked = false;
+
+  /* ==== off-screen буфер сферы ==== */
+  var g = document.createElement('canvas');
+  var gB = Math.max(2, Math.round(S * SCALE));
+  g.width = gB; g.height = gB;
+  var gctx = g.getContext('2d');
+  var gR = Math.round(gB * 0.375);
+  var gcx = gB / 2, gcy = gB / 2;
 
   var texImg = new Image();
   texImg.crossOrigin = 'anonymous';
@@ -69,36 +95,34 @@
   }
 
   function inverseRotate(nx, ny, nz) {
-    /* First undo rotX (around X axis) */
     var y1 = ny * cosX - nz * sinX;
     var z1 = ny * sinX + nz * cosX;
-    /* Then undo rotY (around Y axis) */
     var x1 = nx * cosY + z1 * sinY;
     var z2 = -nx * sinY + z1 * cosY;
     return { x: x1, y: y1, z: z2 };
   }
 
-  /* ===== RENDER TEXTURED SPHERE ===== */
+  /* ===== RENDER TEXTURED SPHERE (в пониженном разрешении) ===== */
   function renderSphere() {
     if (!texReady) {
-      ctx.beginPath();
-      ctx.arc(cx, cy, R, 0, Math.PI * 2);
-      ctx.fillStyle = '#061428';
-      ctx.fill();
+      gctx.beginPath();
+      gctx.arc(gcx, gcy, gR, 0, Math.PI * 2);
+      gctx.fillStyle = '#061428';
+      gctx.fill();
       return;
     }
 
     updateTrig();
-    var imgData = ctx.createImageData(S, S);
+    var imgData = gctx.createImageData(gB, gB);
     var px = imgData.data;
-    var R2 = R * R;
-    var invR = 1 / R;
+    var R2 = gR * gR;
+    var invR = 1 / gR;
 
-    for (var y = 0; y < S; y++) {
-      var dy = y - cy;
+    for (var y = 0; y < gB; y++) {
+      var dy = y - gcy;
       var dy2 = dy * dy;
-      for (var x = 0; x < S; x++) {
-        var dx = x - cx;
+      for (var x = 0; x < gB; x++) {
+        var dx = x - gcx;
         var d2 = dx * dx + dy2;
         if (d2 > R2) continue;
 
@@ -127,14 +151,17 @@
         f = f * f * 0.2;
         var spec = Math.pow(nz, 32) * 0.15;
 
-        var idx = (y * S + x) * 4;
+        var idx = (y * gB + x) * 4;
         px[idx]     = Math.min(255, tr * diff + spec * 255 + f * 20) | 0;
         px[idx + 1] = Math.min(255, tg * diff + spec * 255 + f * 55) | 0;
         px[idx + 2] = Math.min(255, tb * diff + spec * 200 + f * 90) | 0;
         px[idx + 3] = 255;
       }
     }
-    ctx.putImageData(imgData, 0, 0);
+    gctx.putImageData(imgData, 0, 0);
+
+    /* Масштабируем буфер на видимый canvas */
+    ctx.drawImage(g, 0, 0, gB, gB, cx - R, cy - R, R * 2, R * 2);
   }
 
   /* ===== PROJECT ===== */
@@ -145,25 +172,13 @@
     var sy = Math.sin(phi);
     var sz = Math.cos(phi) * Math.sin(theta);
 
-    /* Apply rotX */
     var y1 = sy * cosX - sz * sinX;
     var z1 = sy * sinX + sz * cosX;
-    /* Apply rotY */
     var x1 = sx * cosY + z1 * sinY;
     var z2 = -sx * sinY + z1 * cosY;
 
     if (z2 < 0) return null;
     return { x: cx + x1 * R, y: cy - y1 * R };
-  }
-
-  function projectStatic(lat, lng) {
-    var phi = lat * 0.01745329251994;
-    var theta = (lng + 180) * 0.01745329251994;
-    var sx = -Math.cos(phi) * Math.cos(theta);
-    var sy = Math.sin(phi);
-    var sz = Math.cos(phi) * Math.sin(theta);
-    if (sz < 0) return null;
-    return { x: cx + sx * R, y: cy - sy * R };
   }
 
   /* ===== FLAG ===== */
@@ -207,12 +222,12 @@
 
   /* ===== ATMOSPHERE ===== */
   function drawAtmosphere() {
-    var g = ctx.createRadialGradient(cx, cy, R - 1, cx, cy, R + 18);
-    g.addColorStop(0, 'rgba(66,165,245,0)');
-    g.addColorStop(0.8, 'rgba(0,229,255,0.05)');
-    g.addColorStop(1, 'rgba(0,229,255,0)');
+    var g1 = ctx.createRadialGradient(cx, cy, R - 1, cx, cy, R + 18);
+    g1.addColorStop(0, 'rgba(66,165,245,0)');
+    g1.addColorStop(0.8, 'rgba(0,229,255,0.05)');
+    g1.addColorStop(1, 'rgba(0,229,255,0)');
     ctx.beginPath(); ctx.arc(cx, cy, R + 18, 0, Math.PI * 2);
-    ctx.fillStyle = g; ctx.fill();
+    ctx.fillStyle = g1; ctx.fill();
 
     var p = Math.sin(time * 0.8) * 0.02 + 0.035;
     var g2 = ctx.createRadialGradient(cx, cy, R + 2, cx, cy, R + 35);
@@ -229,24 +244,36 @@
     ctx.stroke();
   }
 
-  /* ===== LOOP ===== */
+  /* ===== LOOP (пониженная частота при автоповороте) ===== */
+  var frame = 0;
+  var frameSkip = 1;             // рисовать каждые N кадров
   function render() {
-    ctx.clearRect(0, 0, S, S);
+    frame++;
     time += 0.016;
     if (autoRotate && !dragging) rotY += 0.00015;
     if (rotY > 6.28318) rotY -= 6.28318;
     if (rotY < 0) rotY += 6.28318;
 
-    renderSphere();
-    drawLabels();
-    drawAtmosphere();
-    drawBorder();
+    /* Пока не тянем мышью/пальцем — можно прореживать кадры */
+    if (frame % frameSkip === 0) {
+      ctx.clearRect(0, 0, S, S);
+      renderSphere();
+      drawLabels();
+      drawAtmosphere();
+      drawBorder();
+    }
     requestAnimationFrame(render);
   }
 
   /* ===== MOUSE ===== */
+  function startDrag() { dragging = true; autoRotate = false; frameSkip = 1; }
+  function endDrag() {
+    dragging = false;
+    frameSkip = isMobile ? 2 : 1;
+    setTimeout(function() { autoRotate = true; }, 2000);
+  }
   canvas.addEventListener('mousedown', function(e) {
-    dragging = true; lastX = e.clientX; lastY = e.clientY; autoRotate = false;
+    startDrag(); lastX = e.clientX; lastY = e.clientY;
   });
   window.addEventListener('mousemove', function(e) {
     if (!dragging) return;
@@ -255,25 +282,50 @@
     rotX = Math.max(-1.2, Math.min(1.2, rotX));
     lastX = e.clientX; lastY = e.clientY;
   });
-  window.addEventListener('mouseup', function() {
-    if (dragging) { dragging = false; setTimeout(function() { autoRotate = true; }, 2000); }
-  });
+  window.addEventListener('mouseup', endDrag);
 
-  /* ===== TOUCH ===== */
+  /* ===== TOUCH =====
+     IMPORTANT: we must NOT block vertical page scrolling.
+     We only capture the touch as a globe-drag once the finger has
+     clearly moved horizontally. Vertical swipes are left to the browser
+     so the page can scroll on phones. */
   canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault(); dragging = true;
-    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; autoRotate = false;
-  }, { passive: false });
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault(); if (!dragging) return;
-    rotY += (e.touches[0].clientX - lastX) * 0.006;
-    rotX += (e.touches[0].clientY - lastY) * 0.006;
-    rotX = Math.max(-1.2, Math.min(1.2, rotX));
-    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-  }, { passive: false });
-  canvas.addEventListener('touchend', function() {
-    dragging = false; setTimeout(function() { autoRotate = true; }, 2000);
-  });
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchIsDrag = false;
+    touchLocked = false;
+    startDrag();
+  }, { passive: true });
 
+  canvas.addEventListener('touchmove', function(e) {
+    if (touchLocked) return; // gesture is a page scroll, ignore it
+    var mx = e.touches[0].clientX;
+    var my = e.touches[0].clientY;
+    var dx = mx - touchStartX;
+    var dy = my - touchStartY;
+
+    if (!touchIsDrag) {
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        touchIsDrag = true;
+      } else if (Math.abs(dy) > 12) {
+        touchLocked = true;
+        touchIsDrag = false;
+        return;
+      } else {
+        return;
+      }
+    }
+
+    e.preventDefault();
+    rotY += dx * 0.006;
+    rotX += dy * 0.006;
+    rotX = Math.max(-1.2, Math.min(1.2, rotX));
+    touchStartX = mx;
+    touchStartY = my;
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function() { endDrag(); });
+
+  frameSkip = isMobile ? 2 : 1;
   render();
 })();
