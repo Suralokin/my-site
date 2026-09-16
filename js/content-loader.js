@@ -154,6 +154,80 @@
     }
   }
 
+  /* ===== CMS SECTIONS (динамические разделы) ===== */
+  function buildCardLink(card) {
+    if (!card || !card.link) return '';
+    var label = card.link_label || 'Подробнее';
+    var href = esc(card.link);
+    if (card.link.indexOf('#') === 0) {
+      return '<a class="cms-link" href="' + href + '">' + esc(label) + ' &rarr;</a>';
+    }
+    return '<a class="cms-link" href="' + href + '" target="_blank" rel="noopener">' + esc(label) + ' &rarr;</a>';
+  }
+
+  function buildCardHtml(card) {
+    var type = card.type || 'text';
+    if (type === 'stat') {
+      return '<article class="cms-card cms-stat">'
+        + '<div class="cms-stat-number">' + esc(card.number || '') + '</div>'
+        + '<div class="cms-stat-label">' + esc(card.label || '') + '</div>'
+        + '</article>';
+    }
+    if (type === 'banner') {
+      return '<article class="cms-banner">'
+        + (card.title ? '<h3>' + esc(card.title) + '</h3>' : '')
+        + (card.text ? '<p>' + esc(card.text) + '</p>' : '')
+        + buildCardLink(card)
+        + '</article>';
+    }
+    return '<article class="cms-card">'
+      + (card.icon ? '<div class="cms-icon">' + esc(card.icon) + '</div>' : '')
+      + (card.title ? '<h3>' + esc(card.title) + '</h3>' : '')
+      + (card.text ? '<p>' + esc(card.text) + '</p>' : '')
+      + buildCardLink(card)
+      + '</article>';
+  }
+
+  function buildSectionHtml(section) {
+    var cards = (section.cards || []).filter(function(c) { return c && c.visible !== false; })
+      .sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
+    if (!cards.length) return '';
+    var html = '<section class="section cms-section' + (section.style === 'alt' ? ' alt' : '') + '">'
+      + '<div class="section-container">'
+      + '<div class="section-title">'
+      + '<h2>' + (section.icon ? '<span class="cms-section-icon">' + esc(section.icon) + '</span>' : '')
+      + esc(section.title || '') + '</h2>'
+      + (section.subtitle ? '<p>' + esc(section.subtitle) + '</p>' : '')
+      + '<div class="section-divider"></div>'
+      + '</div>'
+      + '<div class="cms-cards' + (section.layout === 'list' ? ' list' : '') + '">';
+    for (var i = 0; i < cards.length; i++) {
+      html += buildCardHtml(cards[i]);
+    }
+    html += '</div></div></section>';
+    return html;
+  }
+
+  function applySections(sections) {
+    var mount = document.getElementById('cmsSections');
+    if (!mount) return;
+    var page = window.location.pathname.indexOf('portfolio.html') !== -1 ? 'portfolio' : 'index';
+    var list = (sections || []).filter(function(s) {
+      return s && s.visible !== false && (s.page || 'index') === page;
+    }).sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
+    if (!list.length) {
+      mount.innerHTML = '';
+      mount.style.display = 'none';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      html += buildSectionHtml(list[i]);
+    }
+    mount.style.display = '';
+    mount.innerHTML = html;
+  }
+
   /* ===== LOAD ALL ===== */
   function loadAll() {
     return fetchContent().then(function(data) {
@@ -162,6 +236,7 @@
       applyAbout(data.about);
       applyContacts(data.contacts);
       applyServices(data.services);
+      applySections(data.sections);
       if (window.location.pathname.indexOf('portfolio.html') !== -1) {
         applyPortfolio(data.portfolio);
       }

@@ -179,6 +179,9 @@ module.exports = async (req, res) => {
       const contacts = await readFile('content/contacts.json');
       if (contacts) result.contacts = contacts;
 
+      const sections = await readFile('content/sections.json');
+      if (Array.isArray(sections)) result.sections = sections;
+
       const svcFiles = await listDir('content/services');
       result.services = [];
       for (const s of svcFiles) {
@@ -236,6 +239,9 @@ module.exports = async (req, res) => {
       // Portfolio: single file with publishAt support
       const newPf = (data.portfolio || []).map((p, i) => ({ ...p, order: i + 1 }));
       results.push(await writeFile('content/portfolio.json', newPf));
+
+      // Sections: generic dynamic blocks
+      if (data.sections) results.push(await writeFile('content/sections.json', data.sections));
 
       res.status(200).json({ ok: true, commits: results.length });
     } catch (e) {

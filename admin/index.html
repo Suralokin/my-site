@@ -71,6 +71,11 @@
     .icon-grid span{font-size:22px;padding:6px;text-align:center;cursor:pointer;border-radius:6px;border:1px solid transparent}
     .icon-grid span:hover{background:#1e293b;border-color:#00e5ff}
     .icon-grid span.selected{background:#00e5ff33;border-color:#00e5ff}
+    /* CMS sections editor */
+    .cms-hint{color:#94a3b8;font-size:13px;margin-bottom:12px;line-height:1.5;background:#0a0f1a;border:1px solid #1e293b;border-radius:8px;padding:10px 12px}
+    .cms-block-card{border-left:2px solid rgba(0,229,255,.35)}
+    .hide-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;cursor:pointer;white-space:nowrap}
+    .hide-toggle input{width:auto;margin:0}
   </style>
 </head>
 <body>
@@ -92,6 +97,7 @@
       <div class="tab" onclick="showTab('about',this)">Обо мне</div>
       <div class="tab" onclick="showTab('services',this)">Услуги</div>
       <div class="tab" onclick="showTab('portfolio',this)">Портфолио</div>
+      <div class="tab" onclick="showTab('sections',this)">Разделы</div>
       <div class="tab" onclick="showTab('contacts',this)">Контакты</div>
     </div>
 
@@ -172,6 +178,15 @@
       </div>
     </div>
 
+    <!-- SECTIONS (динамические разделы) -->
+    <div class="section-page" id="page-sections">
+      <div class="cms-hint">Здесь вы создаёте собственные разделы и карточки без правки кода.
+        Раздел на Главной появится между «Обо мне» и «Контактами», на странице Портфолио — между слайдером и CTA.
+        У карточки можно выбрать тип: Текст (иконка+заголовок+описание), Статистика (число+подпись), Баннер (полноширинный блок) или Ссылка с кнопкой.</div>
+      <div id="sectionsList"></div>
+      <button class="btn btn-add" style="margin-top:8px" onclick="addSection()">+ Добавить раздел</button>
+    </div>
+
     <div style="margin-top:1.5rem;text-align:center">
       <button class="btn btn-save" onclick="saveAll()">Сохранить и опубликовать</button>
       <div class="status" id="saveStatus"></div>
@@ -229,6 +244,7 @@
 
       fillServices(contentData.services||[]);
       fillPortfolio(contentData.portfolio||[]);
+      fillSections(contentData.sections||[]);
     }
 
     /* ===== PHOTO ===== */
@@ -525,6 +541,181 @@
       fillPortfolio(arr);
     }
 
+    /* ===== CMS SECTIONS (динамические блоки) ===== */
+    function typeName(t) {
+      return {text:'Текст',stat:'Статистика',banner:'Баннер',link:'Ссылка'}[t] || 'Текст';
+    }
+    function fillSections(list) {
+      var el = document.getElementById('sectionsList');
+      el.innerHTML = '';
+      for (var i = 0; i < list.length; i++) addSectionCard(list[i], i, list.length);
+    }
+    function countSections() { return document.querySelectorAll('#sectionsList > .card').length; }
+
+    function addSectionCard(s, idx, total) {
+      var el = document.getElementById('sectionsList');
+      var div = document.createElement('div');
+      div.className = 'card';
+      var visible = s.visible !== false;
+      div.innerHTML =
+        '<div class="card-header"><span>Раздел '+(idx+1)+'</span>'
+        +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<label class="hide-toggle" title="Показывать на сайте"><input type="checkbox" class="sec-visible"'+(visible?' checked':'')+'> Показ</label>'
+        +'<button class="btn btn-move" onclick="moveSection('+idx+',-1)"'+(idx===0?' disabled':'')+'>▲</button>'
+        +'<button class="btn btn-move" onclick="moveSection('+idx+',1)"'+(idx===total-1?' disabled':'')+'>▼</button>'
+        +'<button class="btn btn-del" onclick="removeSection('+idx+')">Удалить</button>'
+        +'</div></div>'
+        +'<div class="form-group"><label>Заголовок раздела</label><input class="sec-title" value="'+esc(s.title)+'"></div>'
+        +'<div class="form-group"><label>Подзаголовок (необязательно)</label><input class="sec-subtitle" value="'+esc(s.subtitle||'')+'"></div>'
+        +'<div class="form-row">'
+        +'<div class="form-group"><label>Иконка раздела</label>'+buildIconPicker(idx,'sec',s.icon||'📌')+'</div>'
+        +'<div class="form-group"><label>Страница</label><select class="sec-page">'
+        +'<option value="index"'+( (s.page||'index')==='index'?' selected':'')+'>Главная</option>'
+        +'<option value="portfolio"'+(s.page==='portfolio'?' selected':'')+'>Портфолио</option></select></div>'
+        +'</div>'
+        +'<div class="form-row">'
+        +'<div class="form-group"><label>Расположение карточек</label><select class="sec-layout">'
+        +'<option value="grid"'+( (s.layout||'grid')==='grid'?' selected':'')+'>Сетка</option>'
+        +'<option value="list"'+(s.layout==='list'?' selected':'')+'>Столбиком</option></select></div>'
+        +'<div class="form-group"><label>Фон секции</label><select class="sec-style">'
+        +'<option value="default"'+( (s.style||'default')==='default'?' selected':'')+'>Обычный</option>'
+        +'<option value="alt"'+(s.style==='alt'?' selected':'')+'>Альтернативный</option></select></div>'
+        +'</div>'
+        +'<div class="cms-blocks" id="blocks_'+idx+'"></div>'
+        +'<button class="btn btn-add" style="margin-top:6px" onclick="addBlock('+idx+')">+ Добавить карточку</button>';
+      el.appendChild(div);
+      fillBlocks(div, s.cards || []);
+    }
+
+    function fillBlocks(secDiv, cards) {
+      var host = secDiv.querySelector('.cms-blocks');
+      host.innerHTML = '';
+      for (var j = 0; j < cards.length; j++) addBlockCard(host, cards[j], j, cards.length);
+    }
+
+    function addBlockCard(host, b, j, total) {
+      var div = document.createElement('div');
+      div.className = 'card cms-block-card';
+      var type = b.type || 'text';
+      var visible = b.visible !== false;
+      div.innerHTML =
+        '<div class="card-header"><span>Карточка '+(j+1)+' — '+typeName(type)+'</span>'
+        +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<label class="hide-toggle" title="Показывать на сайте"><input type="checkbox" class="b-visible"'+(visible?' checked':'')+'> Показ</label>'
+        +'<button class="btn btn-move" onclick="moveBlock(this,-1)"'+(j===0?' disabled':'')+'>▲</button>'
+        +'<button class="btn btn-move" onclick="moveBlock(this,1)"'+(j===total-1?' disabled':'')+'>▼</button>'
+        +'<button class="btn btn-del" onclick="removeBlock(this)">Удалить</button>'
+        +'</div></div>'
+        +'<div class="form-group"><label>Тип карточки</label><select class="b-type" onchange="blockTypeChanged(this)">'
+        +'<option value="text"'+(type==='text'?' selected':'')+'>Текст</option>'
+        +'<option value="stat"'+(type==='stat'?' selected':'')+'>Статистика</option>'
+        +'<option value="banner"'+(type==='banner'?' selected':'')+'>Баннер</option>'
+        +'<option value="link"'+(type==='link'?' selected':'')+'>Ссылка с кнопкой</option></select></div>'
+        +'<div class="form-group b-field b-icon"><label>Иконка</label>'+buildIconPicker(j,'b_'+host.getAttribute('id').replace('blocks_',''),b.icon||'📄')+'</div>'
+        +'<div class="form-group b-field b-title"><label>Заголовок</label><input class="b-title-input" value="'+esc(b.title||'')+'"></div>'
+        +'<div class="form-group b-field b-text"><label>Текст</label><textarea class="b-text-input" rows="2">'+esc(b.text||'')+'</textarea></div>'
+        +'<div class="form-row b-field b-numlbl">'
+        +'<div class="form-group"><label>Число</label><input class="b-num" value="'+esc(b.number||'')+'"></div>'
+        +'<div class="form-group"><label>Подпись</label><input class="b-lbl" value="'+esc(b.label||'')+'"></div>'
+        +'</div>'
+        +'<div class="form-row b-field b-linkrow">'
+        +'<div class="form-group"><label>Ссылка (https:// или #якорь)</label><input class="b-link" value="'+esc(b.link||'')+'" placeholder="https://..."></div>'
+        +'<div class="form-group"><label>Текст кнопки</label><input class="b-linklabel" value="'+esc(b.link_label||'')+'" placeholder="Подробнее"></div>'
+        +'</div>';
+      host.appendChild(div);
+      blockTypeChanged(div.querySelector('.b-type'));
+    }
+
+    function blockTypeChanged(sel) {
+      var card = sel.closest('.cms-block-card');
+      if (!card) return;
+      var type = sel.value;
+      var show = function(cls, ok){ var el=card.querySelector(cls); if(el) el.style.display = ok ? '' : 'none'; };
+      show('.b-icon', type==='text'||type==='link'||type==='banner');
+      show('.b-title', type!=='stat');
+      show('.b-text', type==='text'||type==='link'||type==='banner');
+      show('.b-numlbl', type==='stat');
+      show('.b-linkrow', type==='link'||type==='banner');
+    }
+
+    function collectSections() {
+      var sections = [];
+      var secCards = document.querySelectorAll('#sectionsList > .card');
+      for (var i = 0; i < secCards.length; i++) {
+        var c = secCards[i];
+        var blocks = [];
+        var bCards = c.querySelectorAll('.cms-block-card');
+        for (var j = 0; j < bCards.length; j++) {
+          var b = bCards[j];
+          var type = b.querySelector('.b-type').value;
+          var item = { type: type };
+          if (type === 'stat') {
+            item.number = (b.querySelector('.b-num')||{}).value || '';
+            item.label = (b.querySelector('.b-lbl')||{}).value || '';
+          } else {
+            var iconEl = b.querySelector('[id^="icon_b_"]');
+            item.icon = iconEl ? iconEl.value : '';
+            item.title = (b.querySelector('.b-title-input')||{}).value || '';
+            if (type==='text'||type==='link'||type==='banner') item.text = (b.querySelector('.b-text-input')||{}).value || '';
+            if (type==='link'||type==='banner') {
+              item.link = (b.querySelector('.b-link')||{}).value || '';
+              item.link_label = (b.querySelector('.b-linklabel')||{}).value || '';
+            }
+          }
+          item.visible = b.querySelector('.b-visible').checked;
+          item.order = j + 1;
+          blocks.push(item);
+        }
+        sections.push({
+          title: (c.querySelector('.sec-title')||{}).value || '',
+          subtitle: (c.querySelector('.sec-subtitle')||{}).value || '',
+          icon: (c.querySelector('[id^="icon_sec_"]')||{}).value || '',
+          page: (c.querySelector('.sec-page')||{}).value || 'index',
+          layout: (c.querySelector('.sec-layout')||{}).value || 'grid',
+          style: (c.querySelector('.sec-style')||{}).value || 'default',
+          visible: (c.querySelector('.sec-visible')||{}).checked,
+          order: i + 1,
+          cards: blocks
+        });
+      }
+      contentData.sections = sections;
+      return sections;
+    }
+
+    function addSection() {
+      var arr = collectSections();
+      arr.push({ title:'Новый раздел', subtitle:'', icon:'📌', page:'index', layout:'grid', style:'default', order:arr.length+1,
+        cards:[{type:'text',icon:'📄',title:'',text:'',visible:true,order:1}] });
+      fillSections(arr);
+      contentData.sections = arr;
+    }
+    function removeSection(idx) { var arr=collectSections(); arr.splice(idx,1); fillSections(arr); contentData.sections=arr; }
+    function moveSection(idx, delta) {
+      var arr=collectSections(); var to=idx+delta;
+      if(to<0||to>=arr.length) return;
+      var tmp=arr[idx]; arr[idx]=arr[to]; arr[to]=tmp;
+      for(var i=0;i<arr.length;i++) arr[i].order=i+1;
+      fillSections(arr); contentData.sections=arr;
+    }
+    function addBlock(secIdx) {
+      var arr=collectSections(); var sec=arr[secIdx]; sec.cards=sec.cards||[];
+      sec.cards.push({type:'text',icon:'📄',title:'',text:'',visible:true,order:sec.cards.length+1});
+      fillSections(arr); contentData.sections=arr;
+    }
+    function removeBlock(btn) {
+      var block=btn.closest('.cms-block-card'); block.remove();
+      var arr=collectSections(); fillSections(arr); contentData.sections=arr;
+    }
+    function moveBlock(btn, delta) {
+      var block=btn.closest('.cms-block-card'); var host=block.parentNode;
+      var cards=Array.prototype.slice.call(host.querySelectorAll('.cms-block-card'));
+      var j=cards.indexOf(block); var to=j+delta;
+      if(to<0||to>=cards.length) return;
+      if(delta<0) host.insertBefore(block, cards[to]);
+      else host.insertBefore(cards[to], block);
+      var arr=collectSections(); fillSections(arr); contentData.sections=arr;
+    }
+
     /* ===== TABS ===== */
     function showTab(name, tabEl) {
       document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
@@ -592,6 +783,8 @@
         telegram_url: 'https://t.me/' + document.getElementById('c_telegram').value.replace('@',''),
         email: document.getElementById('c_email').value
       };
+
+      collectSections();
     }
 
     function saveAll() {
