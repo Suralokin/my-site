@@ -275,9 +275,8 @@
           if (d.ok) {
             contentData.settings = contentData.settings || {};
             contentData.settings.photo = path;
-            document.getElementById('s_photo_path').value = path;
             updatePhotoPreview(path);
-            status.textContent = '✅ Загружено!';
+            status.textContent = '✅ Загружено! Не забудьте нажать «Сохранить и опубликовать».';
             status.style.color = '#6ee7b7';
           } else {
             status.textContent = '❌ ' + (d.error||'Ошибка');
