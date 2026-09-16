@@ -95,8 +95,14 @@ function encodeContent(str) {
 
 async function listDir(path) {
   const resp = await githubRequest(`/repos/Suralokin/my-site/contents/${path}`);
-  if (resp.status === 200 && Array.isArray(resp)) {
-    return resp.filter(f => f.name.endsWith('.json')).map(f => f.name.replace('.json', ''));
+  if (resp && resp.status === 200) {
+    // githubRequest spreads array responses into an object ({status, 0, 1, ...}),
+    // so enumerate numeric keys instead of relying on Array.isArray.
+    const keys = Object.keys(resp).filter((k) => /^\d+$/.test(k)).sort((a, b) => Number(a) - Number(b));
+    return keys
+      .map((k) => resp[k])
+      .filter((f) => f && typeof f.name === 'string' && f.name.endsWith('.json'))
+      .map((f) => f.name.replace('.json', ''));
   }
   return [];
 }
