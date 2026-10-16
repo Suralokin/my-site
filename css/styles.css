@@ -878,6 +878,12 @@ a { text-decoration: none; color: inherit; }
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+#globeCanvas.globe-ready {
+  opacity: 1;
 }
 
 #globeCanvas:active {

@@ -54,7 +54,8 @@
     texData = tc.getImageData(0, 0, texW, texH).data;
     texReady = true;
   };
-  texImg.src = 'images/planet-texture.jpg';
+  /* Текстура грузится позже — после полной загрузки страницы (см. start()),
+     чтобы 240 КБ картинки и тяжёлый рендер не тормозили первую отрисовку. */
 
   var countryLabels = [
     {lat:60,lng:40,name:'Россия',code:'RU'},
@@ -335,5 +336,35 @@
     if (dragging) { dragging = false; frameSkip = isMobile ? 2 : 1; setTimeout(function() { autoRotate = true; }, 2000); }
   });
 
-  render();
+  /* ===== START (ОТЛОЖЕННЫЙ) =====
+     Глобус не стартует во время загрузки страницы. Ждём событие полной
+     загрузки, затем в свободное время запускаем рендер и плавно проявляем
+     canvas (класс .globe-ready включает CSS-переход opacity 0 -> 1). */
+  var started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    texImg.src = 'images/planet-texture.jpg';
+    render();
+    requestAnimationFrame(function() {
+      canvas.classList.add('globe-ready');
+    });
+  }
+
+  function scheduleStart() {
+    var go = function() {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(start, { timeout: 800 });
+      } else {
+        setTimeout(start, 120);
+      }
+    };
+    if (document.readyState === 'complete') {
+      go();
+    } else {
+      window.addEventListener('load', go, { once: true });
+    }
+  }
+
+  scheduleStart();
 })();
