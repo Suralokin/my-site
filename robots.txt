@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /content/
 
-Sitemap: https://my-site-psi-bay.vercel.app/sitemap.xml
+Sitemap: https://gilded-rolypoly-7c451d.netlify.app/sitemap.xml
