@@ -414,10 +414,23 @@
         + '<div class="form-group"><label>Описание</label><textarea class="pf-desc" rows="2">'+esc(p.description)+'</textarea></div>'
         + '<div class="form-row">'
         + '<div class="form-group"><label>Фон</label><select class="pf-bg">'
-        + '<option value="ai-bg"'+(p.bg_class==='ai-bg'?' selected':'')+'>AI</option>'
         + '<option value="web-bg"'+(p.bg_class==='web-bg'?' selected':'')+'>Web</option>'
-        + '<option value="bot-bg"'+(p.bg_class==='bot-bg'?' selected':'')+'>Bot</option></select></div>'
+        + '<option value="bot-bg"'+(p.bg_class==='bot-bg'?' selected':'')+'>Bot</option>'
+        + '<option value="ai-bg"'+(p.bg_class==='ai-bg'?' selected':'')+'>AI</option>'
+        + '<option value="gradient-bg-1"'+(p.bg_class==='gradient-bg-1'?' selected':'')+'>Бирюзовый</option>'
+        + '<option value="gradient-bg-2"'+(p.bg_class==='gradient-bg-2'?' selected':'')+'>Фиолетовый</option>'
+        + '<option value="gradient-bg-3"'+(p.bg_class==='gradient-bg-3'?' selected':'')+'>Оранжевый</option>'
+        + '</select></div>'
         + '<div class="form-group"><label>Ссылка на проект</label><input class="pf-link" value="'+esc(p.link||'')+'" placeholder="https://..."></div></div>'
+        + '<div class="form-row">'
+        + '<div class="form-group"><label>Категория (для фильтра)</label><select class="pf-cat">'
+        + '<option value="site"'+(p.category==='site'?' selected':'')+'>Сайты</option>'
+        + '<option value="landing"'+(p.category==='landing'?' selected':'')+'>Лендинги</option>'
+        + '<option value="ai"'+(p.category==='ai'?' selected':'')+'>AI и боты</option>'
+        + '<option value="app"'+(p.category==='app'?' selected':'')+'>Приложения</option>'
+        + '<option value="service"'+(p.category==='service'?' selected':'')+'>Услуги</option>'
+        + '</select></div>'
+        + '<div class="form-group"><label>Теги (через запятую)</label><input class="pf-tags" value="'+esc((p.tags||[]).join(', '))+'"></div></div>'
         + '<div class="form-group"><label>Публикация (пусто = сразу)</label><input type="datetime-local" class="pf-publish" value="'+pubVal+'"></div>';
 
       setupPortfolioDrag(div, idx);
@@ -426,7 +439,7 @@
 
     function addPortfolio() {
       var arr = collectPortfolio();
-      arr.push({icon:'📁',title:'',description:'',bg_class:'ai-bg',link:'#',order:arr.length+1});
+      arr.push({icon:'📁',title:'',description:'',bg_class:'web-bg',link:'',category:'site',tags:[],order:arr.length+1});
       contentData.portfolio = arr;
       fillPortfolio(arr);
     }
@@ -444,12 +457,17 @@
       var pfDescs = document.querySelectorAll('#portfolioList .pf-desc');
       var pfBgs = document.querySelectorAll('#portfolioList .pf-bg');
       var pfLinks = document.querySelectorAll('#portfolioList .pf-link');
+      var pfCats = document.querySelectorAll('#portfolioList .pf-cat');
+      var pfTags = document.querySelectorAll('#portfolioList .pf-tags');
       var pfPubs = document.querySelectorAll('#portfolioList .pf-publish');
       var arr = [];
       for (var i = 0; i < pfTitles.length; i++) {
         var item = {
           icon: pfIcons[i].value, title: pfTitles[i].value, description: pfDescs[i].value,
-          bg_class: pfBgs[i].value, link: pfLinks[i].value, order: i + 1
+          bg_class: pfBgs[i].value, link: pfLinks[i].value,
+          category: pfCats[i] ? pfCats[i].value : 'site',
+          tags: pfTags[i] ? pfTags[i].value.split(',').map(function(t){return t.trim()}).filter(Boolean) : [],
+          order: i + 1
         };
         if (pfPubs[i] && pfPubs[i].value) item.publishAt = new Date(pfPubs[i].value).toISOString();
         arr.push(item);
@@ -761,12 +779,17 @@
       var pfDescs = document.querySelectorAll('.pf-desc');
       var pfBgs = document.querySelectorAll('.pf-bg');
       var pfLinks = document.querySelectorAll('.pf-link');
+      var pfCats = document.querySelectorAll('.pf-cat');
+      var pfTags = document.querySelectorAll('.pf-tags');
       var pfPubs = document.querySelectorAll('.pf-publish');
       contentData.portfolio = [];
       for (var i = 0; i < pfTitles.length; i++) {
         var item = {
           icon: pfIcons[i].value, title: pfTitles[i].value, description: pfDescs[i].value,
-          bg_class: pfBgs[i].value, link: pfLinks[i].value, order: i+1
+          bg_class: pfBgs[i].value, link: pfLinks[i].value,
+          category: pfCats[i] ? pfCats[i].value : 'site',
+          tags: pfTags[i] ? pfTags[i].value.split(',').map(function(t){return t.trim()}).filter(Boolean) : [],
+          order: i+1
         };
         if (pfPubs[i] && pfPubs[i].value) {
           item.publishAt = new Date(pfPubs[i].value).toISOString();

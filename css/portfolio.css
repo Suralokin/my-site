@@ -103,6 +103,7 @@
 .ai-bg { background: linear-gradient(135deg, #0d47a1, #4a148c); }
 .web-bg { background: linear-gradient(135deg, #004d40, #006064); }
 .bot-bg { background: linear-gradient(135deg, #1a237e, #0d47a1); }
+.ai-bg { background: linear-gradient(135deg, #1a237e, #0d47a1); }
 .gradient-bg-1 { background: linear-gradient(135deg, #0d47a1, #00838f); }
 .gradient-bg-2 { background: linear-gradient(135deg, #4a148c, #880e4f); }
 .gradient-bg-3 { background: linear-gradient(135deg, #e65100, #bf360c); }
@@ -225,4 +226,155 @@
   .work-card-preview { height: 180px; }
   .work-card-emoji { font-size: 3.5rem; }
   .cta-box { padding: 40px 24px; }
+}
+
+/* ===== FILTER TOOLBAR ===== */
+.pf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+  min-width: 0;
+}
+
+.pf-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chip {
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 9px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(66,165,245,0.25);
+  background: rgba(13,71,161,0.12);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.chip:hover {
+  color: #fff;
+  border-color: rgba(0,229,255,0.5);
+  background: rgba(0,229,255,0.1);
+  transform: translateY(-2px);
+}
+
+.chip.active {
+  color: #06060f;
+  background: linear-gradient(135deg, var(--blue-light), var(--cyan));
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(0,229,255,0.35);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.pf-count {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ===== CARD EXTRAS ===== */
+.work-card-num {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  z-index: 2;
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(255,255,255,0.16);
+  letter-spacing: -1px;
+  pointer-events: none;
+}
+
+.work-card-actions {
+  margin-top: 20px;
+  display: flex;
+}
+
+/* .work-card-btn раньше был кнопкой-оверлеем: оставляем только раскладку,
+   цвета и тени берутся у .btn-primary / .btn-outline */
+.work-card-btn {
+  width: 100%;
+  justify-content: center;
+  background: none;
+  box-shadow: none;
+  font-size: 0.92rem;
+  padding: 12px 24px;
+}
+.work-card-btn.btn-primary {
+  box-shadow: 0 4px 24px rgba(13,71,161,0.4);
+}
+.work-card-btn.btn-primary:hover {
+  box-shadow: 0 8px 32px rgba(13,71,161,0.6);
+}
+.work-card-btn.btn-outline {
+  border: 2px solid rgba(0,229,255,0.35);
+  color: var(--cyan);
+  background: rgba(0,229,255,0.05);
+}
+.work-card-btn.btn-outline:hover {
+  background: rgba(0,229,255,0.14);
+  border-color: var(--cyan);
+}
+
+.work-card-techs .tag {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+}
+
+/* ===== FILTER STATES ===== */
+.work-card.is-hidden {
+  display: none;
+}
+
+.pf-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  border: 1px dashed rgba(66,165,245,0.2);
+  border-radius: var(--radius);
+}
+.pf-empty-emoji {
+  display: block;
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+/* ===== RESPONSIVE (grid extras) ===== */
+@media (max-width: 900px) {
+  .pf-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pf-count { text-align: center; }
+}
+
+@media (max-width: 640px) {
+  .pf-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pf-filters::-webkit-scrollbar { display: none; }
+  .work-card-num { font-size: 1.8rem; top: 12px; left: 16px; }
+  .work-card-btn { font-size: 0.88rem; padding: 12px 18px; }
 }

@@ -1,8 +1,9 @@
 /* ===== CMS CONTENT LOADER ===== */
 (function() {
   var API = '/api/content';
+  var STATIC_PREFIX = '/content/';
 
-  function fetchContent() {
+  function fetchApi() {
     return fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -11,6 +12,38 @@
       if (!r.ok) return null;
       return r.json();
     }).catch(function() { return null; });
+  }
+
+  /* Резервный источник: статические JSON рядом с сайтом.
+     Работает даже если GitHub-токен истёк и /api/content недоступен. */
+  function fetchStatic(name) {
+    return fetch(STATIC_PREFIX + name + '.json', { cache: 'no-store' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .catch(function() { return null; });
+  }
+
+  function isFilled(v) {
+    if (v === null || v === undefined) return false;
+    if (Array.isArray(v)) return v.length > 0;
+    return true;
+  }
+
+  function publishedFilter(item) {
+    return !item || !item.publishAt || item.publishAt <= new Date().toISOString();
+  }
+
+  function fetchStaticServices() {
+    var LIMIT = 12;
+    var found = [];
+    function step(i) {
+      if (i > LIMIT) return Promise.resolve(found);
+      return fetchStatic('services/service-' + i).then(function(s) {
+        if (!s || typeof s !== 'object') return found;
+        found.push(s);
+        return step(i + 1);
+      });
+    }
+    return step(1);
   }
 
   function esc(s) {
@@ -94,39 +127,80 @@
     }
   }
 
-  /* ===== PORTFOLIO (SLIDER) ===== */
+  /* ===== PORTFOLIO (GRID) ===== */
+  var PF_CAT_LABELS = {
+    site: 'Сайты',
+    landing: 'Лендинги',
+    ai: 'AI и боты',
+    app: 'Приложения',
+    service: 'Услуги'
+  };
+
+  function pfLinkHtml(p) {
+    var link = p.link || '';
+    var external = link && link.indexOf('#') !== 0 && link.indexOf('tel:') !== 0 &&
+      link.indexOf('mailto:') !== 0;
+
+    if (external) {
+      var last = link.split('/').pop();
+      var isSamePage = last === 'portfolio.html' ||
+        last === location.pathname.split('/').pop() ||
+        link === location.href || link === location.pathname;
+      if (isSamePage) {
+        return '<a class="btn btn-outline work-card-btn" href="index.html#contacts">Обсудить проект &rarr;</a>';
+      }
+      return '<a class="btn btn-primary work-card-btn" href="' + esc(link) + '" target="_blank" rel="noopener">Смотреть проект &rarr;</a>';
+    }
+
+    if (link.indexOf('tel:') === 0) {
+      return '<a class="btn btn-primary work-card-btn" href="' + esc(link) + '">Позвонить</a>';
+    }
+    return '<a class="btn btn-outline work-card-btn" href="index.html#contacts">Обсудить проект &rarr;</a>';
+  }
+
   function applyPortfolio(items) {
     if (!items || !items.length) return;
     items.sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
-    var track = document.getElementById('portfolioTrack');
-    if (!track) return;
+
+    var grid = document.getElementById('portfolioGrid');
+    if (!grid) return;
+
     var html = '';
     for (var i = 0; i < items.length; i++) {
       var p = items[i];
-      var link = p.link || '';
-      var isSamePage = !link || link === '#' || link.indexOf('#') === 0;
-      if (link && link.indexOf('#') !== 0) {
-        var last = link.split('/').pop();
-        if (last === 'portfolio.html' || last === location.pathname.split('/').pop() || link === location.href || link === location.pathname) {
-          isSamePage = true;
+      var cat = PF_CAT_LABELS[p.category] ? p.category : 'site';
+      var num = (i + 1) < 10 ? '0' + (i + 1) : '' + (i + 1);
+      var tags = '';
+      if (Array.isArray(p.tags)) {
+        for (var t = 0; t < p.tags.length; t++) {
+          if (!p.tags[t]) continue;
+          tags += '<span class="tag">' + esc(p.tags[t]) + '</span>';
         }
       }
-      var linkHtml;
-      if (isSamePage) {
-        linkHtml = '<span class="portfolio-link disabled">Подробнее &rarr;</span>';
-      } else {
-        linkHtml = '<a href="' + esc(link) + '" class="portfolio-link" target="_blank">Подробнее &rarr;</a>';
-      }
-      html += '<div class="portfolio-card' + (i === 0 ? ' active-slide' : '') + '">'
-        + '<div class="portfolio-preview ' + (p.bg_class || '') + '">' + (p.icon || '📁') + '</div>'
-        + '<div class="portfolio-info">'
-        + '<h3>' + esc(p.title) + '</h3>'
-        + '<p>' + esc(p.description) + '</p>'
-        + linkHtml
-        + '</div></div>';
+      var desc = esc(p.description || '').replace(/\n/g, '<br>');
+
+      html += '<article class="work-card animate-on-scroll delay-' + (i % 3 + 1) + '" data-cat="' + cat + '">'
+        + '<div class="work-card-preview ' + esc(p.bg_class || '') + '">'
+        + '<span class="work-card-num" aria-hidden="true">' + num + '</span>'
+        + '<span class="work-card-emoji">' + esc(p.icon || '📁') + '</span>'
+        + '</div>'
+        + '<div class="work-card-info">'
+        + '<span class="work-card-tag">' + esc(PF_CAT_LABELS[cat]) + '</span>'
+        + '<h3>' + esc(p.title || '') + '</h3>'
+        + (desc ? '<p>' + desc + '</p>' : '')
+        + (tags ? '<div class="work-card-techs">' + tags + '</div>' : '')
+        + '<div class="work-card-actions">' + pfLinkHtml(p) + '</div>'
+        + '</div></article>';
     }
-    track.innerHTML = html;
-    if (typeof initSlider === 'function') initSlider();
+
+    grid.innerHTML = html;
+
+    if (typeof window.observeScrollAnimations === 'function') {
+      window.observeScrollAnimations(grid);
+    }
+    if (typeof window.applyPortfolioFilter === 'function') {
+      window.applyPortfolioFilter();
+    }
   }
 
   /* ===== CONTACTS ===== */
@@ -229,8 +303,35 @@
   }
 
   /* ===== LOAD ALL ===== */
+  function fillFromStatic(data) {
+    var jobs = [];
+    if (!isFilled(data.settings)) {
+      jobs.push(fetchStatic('settings').then(function(v) { if (v) data.settings = v; }));
+    }
+    if (!isFilled(data.about)) {
+      jobs.push(fetchStatic('about').then(function(v) { if (v) data.about = v; }));
+    }
+    if (!isFilled(data.contacts)) {
+      jobs.push(fetchStatic('contacts').then(function(v) { if (v) data.contacts = v; }));
+    }
+    if (!isFilled(data.sections)) {
+      jobs.push(fetchStatic('sections').then(function(v) { if (Array.isArray(v)) data.sections = v; }));
+    }
+    if (!isFilled(data.services) && document.querySelector('.services-grid')) {
+      jobs.push(fetchStaticServices().then(function(v) { if (v.length) data.services = v; }));
+    }
+    if (!isFilled(data.portfolio) && document.getElementById('portfolioGrid')) {
+      jobs.push(fetchStatic('portfolio').then(function(v) {
+        if (Array.isArray(v)) data.portfolio = v.filter(publishedFilter);
+      }));
+    }
+    return Promise.all(jobs).then(function() { return data; });
+  }
+
   function loadAll() {
-    return fetchContent().then(function(data) {
+    return fetchApi().then(function(apiData) {
+      return fillFromStatic(apiData || {});
+    }).then(function(data) {
       if (!data) return;
       applySettings(data.settings);
       applyAbout(data.about);

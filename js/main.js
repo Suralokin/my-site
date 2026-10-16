@@ -32,11 +32,21 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
     }
   });
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+function observeScrollAnimations(root) {
+  const scope = root || document;
+  scope.querySelectorAll('.animate-on-scroll').forEach(el => {
+    if (el.dataset.observed) return;
+    el.dataset.observed = '1';
+    observer.observe(el);
+  });
+}
+window.observeScrollAnimations = observeScrollAnimations;
+observeScrollAnimations();
 
 /* ===== PARTICLES ===== */
 (function createParticles() {
@@ -127,109 +137,71 @@ document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(e
   }
 })();
 
-/* ===== PORTFOLIO SLIDER ===== */
-var sliderIndex = 0;
-var sliderAutoTimer = null;
-var sliderPaused = false;
+/* ===== PORTFOLIO FILTERS ===== */
+function pluralRu(n, one, few, many) {
+  var m10 = n % 10, m100 = n % 100;
+  if (m100 >= 11 && m100 <= 14) return many;
+  if (m10 === 1) return one;
+  if (m10 >= 2 && m10 <= 4) return few;
+  return many;
+}
 
-function initSlider() {
-  var track = document.getElementById('portfolioTrack');
-  var dots = document.getElementById('portfolioDots');
-  if (!track || !dots) return;
+function portfolioProjectWord(n) {
+  return pluralRu(n, 'проект', 'проекта', 'проектов');
+}
 
-  var cards = track.querySelectorAll('.portfolio-card');
-  if (cards.length === 0) return;
+var pfActiveCat = 'all';
 
-  dots.innerHTML = '';
-  for (var i = 0; i < cards.length; i++) {
-    var dot = document.createElement('div');
-    dot.className = 'dot' + (i === 0 ? ' active' : '');
-    dot.setAttribute('data-i', i);
-    dot.addEventListener('click', function() {
-      goToSlide(parseInt(this.getAttribute('data-i')));
+function applyPortfolioFilter() {
+  var grid = document.getElementById('portfolioGrid');
+  if (!grid) return;
+
+  var cards = grid.querySelectorAll('.work-card');
+  var shown = 0;
+
+  cards.forEach(function(card) {
+    var match = pfActiveCat === 'all' || card.dataset.cat === pfActiveCat;
+    card.classList.toggle('is-hidden', !match);
+    if (match) shown++;
+  });
+
+  var counter = document.getElementById('pfCount');
+  if (counter) {
+    counter.textContent = shown + ' ' + portfolioProjectWord(shown);
+  }
+
+  var empty = document.getElementById('pfEmpty');
+  if (empty) empty.hidden = shown !== 0;
+
+  if (typeof window.observeScrollAnimations === 'function') {
+    window.observeScrollAnimations(grid);
+  }
+}
+window.applyPortfolioFilter = applyPortfolioFilter;
+
+function initPortfolioFilters() {
+  var bar = document.getElementById('pfFilters');
+  if (!bar) return;
+
+  bar.addEventListener('click', function(e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+
+    pfActiveCat = chip.dataset.cat || 'all';
+
+    bar.querySelectorAll('.chip').forEach(function(c) {
+      c.classList.toggle('active', c === chip);
+      c.setAttribute('aria-selected', c === chip ? 'true' : 'false');
     });
-    dots.appendChild(dot);
-  }
 
-  sliderIndex = 0;
-  updateSlider();
-  startAutoSlide();
-
-  var wrap = document.querySelector('.slider-wrap');
-  if (wrap) {
-    wrap.addEventListener('mouseenter', function() { sliderPaused = true; stopAutoSlide(); });
-    wrap.addEventListener('mouseleave', function() { sliderPaused = false; startAutoSlide(); });
-  }
-
-  // Touch swipe
-  var vp = document.querySelector('.slider-viewport');
-  var touchStartX = 0;
-  if (vp) {
-    vp.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
-    vp.addEventListener('touchend', function(e) {
-      var diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 50) slidePortfolio(diff > 0 ? 1 : -1);
-    }, { passive: true });
-  }
-}
-
-function updateSlider() {
-  var track = document.getElementById('portfolioTrack');
-  var dots = document.querySelectorAll('#portfolioDots .dot');
-  if (!track) return;
-
-  var cards = track.querySelectorAll('.portfolio-card');
-  var count = cards.length;
-  if (count === 0) return;
-
-  if (sliderIndex >= count) sliderIndex = 0;
-  if (sliderIndex < 0) sliderIndex = count - 1;
-
-  track.style.transform = 'translateX(-' + (sliderIndex * 100) + '%)';
-
-  cards.forEach(function(c, i) {
-    c.classList.toggle('active-slide', i === sliderIndex);
+    applyPortfolioFilter();
   });
 
-  dots.forEach(function(d, i) {
-    d.classList.toggle('active', i === sliderIndex);
+  bar.querySelectorAll('.chip').forEach(function(c) {
+    c.setAttribute('aria-selected', c.classList.contains('active') ? 'true' : 'false');
   });
+
+  applyPortfolioFilter();
 }
 
-function slidePortfolio(dir) {
-  var track = document.getElementById('portfolioTrack');
-  if (!track) return;
-  var count = track.querySelectorAll('.portfolio-card').length;
-  if (count === 0) return;
-
-  sliderIndex += dir;
-  if (sliderIndex >= count) sliderIndex = 0;
-  if (sliderIndex < 0) sliderIndex = count - 1;
-
-  updateSlider();
-  resetAutoSlide();
-}
-
-function goToSlide(i) {
-  sliderIndex = i;
-  updateSlider();
-  resetAutoSlide();
-}
-
-function startAutoSlide() {
-  stopAutoSlide();
-  sliderAutoTimer = setInterval(function() {
-    if (!sliderPaused) slidePortfolio(1);
-  }, 4000);
-}
-
-function stopAutoSlide() {
-  if (sliderAutoTimer) { clearInterval(sliderAutoTimer); sliderAutoTimer = null; }
-}
-
-function resetAutoSlide() {
-  stopAutoSlide();
-  startAutoSlide();
-}
-
-document.addEventListener('DOMContentLoaded', initSlider);
+document.addEventListener('DOMContentLoaded', initPortfolioFilters);
