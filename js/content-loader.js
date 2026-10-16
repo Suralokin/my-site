@@ -97,6 +97,9 @@
         + tags + '</div>';
     }
     grid.innerHTML = html;
+    if (typeof window.observeScrollAnimations === 'function') {
+      window.observeScrollAnimations(grid);
+    }
   }
 
   /* ===== ABOUT ===== */
