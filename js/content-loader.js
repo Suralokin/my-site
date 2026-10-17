@@ -4,6 +4,11 @@
   var STATIC_PREFIX = 'content/';
 
   function fetchApi() {
+    /* На GitHub Pages нет серверлес-функции /api/content —
+       публичный сайт сразу читает статические JSON из content/. */
+    if (location.hostname.indexOf('github.io') !== -1 || location.protocol === 'file:') {
+      return Promise.resolve(null);
+    }
     return fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
