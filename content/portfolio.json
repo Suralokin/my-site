@@ -6,7 +6,11 @@
     "bg_class": "gradient-bg-3",
     "link": "tel:+79882508903",
     "category": "service",
-    "tags": ["Диагностика", "Сборка ПК", "Обслуживание"],
+    "tags": [
+      "Диагностика",
+      "Сборка ПК",
+      "Обслуживание"
+    ],
     "order": 1
   },
   {
@@ -16,7 +20,11 @@
     "bg_class": "web-bg",
     "link": "",
     "category": "landing",
-    "tags": ["Одностраничный сайт", "Адаптивная вёрстка", "Анимации"],
+    "tags": [
+      "Одностраничный сайт",
+      "Адаптивная вёрстка",
+      "Анимации"
+    ],
     "order": 2
   },
   {
@@ -26,7 +34,11 @@
     "bg_class": "bot-bg",
     "link": "",
     "category": "ai",
-    "tags": ["Telegram-бот", "GPT", "Автоматизация"],
+    "tags": [
+      "Telegram-бот",
+      "GPT",
+      "Автоматизация"
+    ],
     "order": 3
   },
   {
@@ -36,7 +48,11 @@
     "bg_class": "gradient-bg-1",
     "link": "https://finish-project-psb3.vercel.app/",
     "category": "app",
-    "tags": ["Дашборд", "Аналитика", "Real-time"],
+    "tags": [
+      "Дашборд",
+      "Аналитика",
+      "Real-time"
+    ],
     "order": 4
   },
   {
@@ -46,7 +62,10 @@
     "bg_class": "web-bg",
     "link": "https://clinics-rosy.vercel.app/",
     "category": "site",
-    "tags": ["Многостраничный сайт", "Медицина"],
+    "tags": [
+      "Многостраничный сайт",
+      "Медицина"
+    ],
     "order": 5
   },
   {
@@ -56,7 +75,10 @@
     "bg_class": "gradient-bg-1",
     "link": "https://healas-lt-tcfn.vercel.app/",
     "category": "landing",
-    "tags": ["Лендинг", "Одностраничный сайт"],
+    "tags": [
+      "Лендинг",
+      "Одностраничный сайт"
+    ],
     "order": 6
   },
   {
@@ -66,7 +88,10 @@
     "bg_class": "gradient-bg-2",
     "link": "https://lesson10-site.vercel.app/",
     "category": "landing",
-    "tags": ["Одностраничный сайт", "Учебный проект"],
+    "tags": [
+      "Одностраничный сайт",
+      "Учебный проект"
+    ],
     "order": 7
   },
   {
@@ -76,7 +101,10 @@
     "bg_class": "web-bg",
     "link": "https://ya-s-toboi-druhu.vercel.app/",
     "category": "site",
-    "tags": ["Заказной сайт", "Клиентский проект"],
+    "tags": [
+      "Заказной сайт",
+      "Клиентский проект"
+    ],
     "order": 8
   },
   {
@@ -86,7 +114,11 @@
     "bg_class": "gradient-bg-2",
     "link": "https://academy-card.vercel.app/",
     "category": "landing",
-    "tags": ["Интерактив", "Карточки", "Рекомендации"],
+    "tags": [
+      "Интерактив",
+      "Карточки",
+      "Рекомендации"
+    ],
     "order": 9
   }
 ]
