@@ -195,6 +195,9 @@
 
   <script>
     var CMS_PASSWORD = '';
+    var API_URL = (location.hostname.indexOf('github.io') !== -1 || location.protocol === 'file:')
+      ? 'https://my-site.kolya-romashkin.workers.dev/api/content'
+      : '/api/content';
     var contentData = {};
     var iconSets = {
       tech: ['🤖','🌐','💻','⚡','🧠','🔧','📱','🖥','☁','🔒','📊','🎯','🚀','💡','⚙','🔗','📡','🛠','🎪','🏗'],
@@ -204,7 +207,7 @@
 
     function doLogin() {
       CMS_PASSWORD = document.getElementById('password').value;
-      fetch('/api/content', {
+      fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: CMS_PASSWORD, action: 'read' })
@@ -267,7 +270,7 @@
         var ext = file.name.split('.').pop();
         var path = 'images/my-profile.' + ext;
 
-        fetch('/api/content', {
+        fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password: CMS_PASSWORD, action: 'upload', path: path, content: b64 })
@@ -816,7 +819,7 @@
       btn.textContent = 'Сохраняю...';
       document.getElementById('saveStatus').className = 'status';
 
-      fetch('/api/content', {
+      fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: CMS_PASSWORD, action: 'write', data: contentData })

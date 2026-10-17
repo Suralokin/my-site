@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /content/
 
-Sitemap: https://gilded-rolypoly-7c451d.netlify.app/sitemap.xml
+Sitemap: https://suralokin.github.io/my-site/sitemap.xml

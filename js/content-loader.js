@@ -1,7 +1,7 @@
 /* ===== CMS CONTENT LOADER ===== */
 (function() {
-  var API = '/api/content';
-  var STATIC_PREFIX = '/content/';
+  var API = 'api/content';
+  var STATIC_PREFIX = 'content/';
 
   function fetchApi() {
     return fetch(API, {
